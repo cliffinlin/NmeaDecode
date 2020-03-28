@@ -56,7 +56,7 @@ class VTG(NmeaSentence):
         self.SpeedM = self.Data[VTG_INDEX_SPEED_M]
         self.SpeedMMark = self.Data[VTG_INDEX_SPEED_M_MARK]
 
-        print self.to_string()
+        print(self.to_string())
 
     def true_track_to_string(self):
         result = ""

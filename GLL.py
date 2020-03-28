@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 from NmeaSentence import NmeaSentence
 
 # GLL - Lat/Lon data
@@ -16,7 +17,6 @@ from NmeaSentence import NmeaSentence
 #      *iD          checksum data
 
 # $GNGLL,4004.680961,N,11614.576639,E,075414.000,A,A*4F
-
 
 GLL_INDEX_LATITUDE = 0
 GLL_INDEX_LATITUDE_DIRECTION = 0
@@ -48,7 +48,7 @@ class GLL(NmeaSentence):
         self.Time = self.Data[GLL_INDEX_TIME]
         self.Status = self.Data[GLL_INDEX_STATUS]
 
-        print self.to_string()
+        print(self.to_string())
 
     def to_string(self):
         result = ""
@@ -62,5 +62,25 @@ class GLL(NmeaSentence):
                   + self.longitude_to_string() \
                   + self.time_to_string() \
                   + self.status_to_string()
+
+        return result
+
+    def get_location(self, sample_duration_in_second):
+        result = None
+
+        if self.Hour is None or self.Minute is None or self.Second is None:
+            return result
+
+        date_time_now = datetime.datetime.strptime(self.Hour + ":" + self.Minute + ":" + self.Second[0:2], '%H:%M:%S')
+        if self.LastDateTime is not None:
+            duration = date_time_now - self.LastDateTime
+            if duration.seconds < sample_duration_in_second:
+                return result
+
+        self.LastDateTime = date_time_now
+        if self.LatitudeValue is None or self.LongitudeValue is None:
+            return result
+        else:
+            result = [self.LatitudeValue, self.LongitudeValue]
 
         return result

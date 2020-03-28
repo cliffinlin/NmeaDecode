@@ -61,7 +61,7 @@ class GSA(NmeaSentence):
         self.HDOP = self.Data[GSA_INDEX_HDOP]
         self.VDOP = self.Data[GSA_INDEX_VDOP]
 
-        print self.to_string()
+        print(self.to_string())
 
     def selection_to_string(self):
         result = ""

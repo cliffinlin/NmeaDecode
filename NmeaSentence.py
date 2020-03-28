@@ -37,12 +37,23 @@ class NmeaSentence:
         self.Data = []
 
         self.Date = ""
+        self.Year = None
+        self.Month = None
+        self.Day = None
+
         self.Time = ""
+        self.Hour = None
+        self.Minute = None
+        self.Second = None
+
+        self.LastDateTime = None
 
         self.Latitude = ""
         self.LatitudeDirection = ""
+        self.LatitudeValue = None
         self.Longitude = ""
         self.LongitudeDirection = ""
+        self.LongitudeValue = None
         self.Altitude = ""
         self.AltitudeUnit = ""
 
@@ -118,18 +129,22 @@ class NmeaSentence:
     def time_to_string(self):
         result = ""
 
+        self.Hour = None
+        self.Minute = None
+        self.Second = None
+
         time = self.Time.strip()
         if time is None:
             return result
         if len(time) < TIME_STRING_LENGTH_MIN:
             return result
 
-        hour = time[TIME_STRING_HOUR_INDEX_MIN:TIME_STRING_HOUR_INDEX_MAX]
-        minute = time[TIME_STRING_MINUTE_INDEX_MIN:TIME_STRING_MINUTE_INDEX_MAX]
-        second = time[TIME_STRING_SECOND_INDEX_MIN:]
+        self.Hour = time[TIME_STRING_HOUR_INDEX_MIN:TIME_STRING_HOUR_INDEX_MAX]
+        self.Minute = time[TIME_STRING_MINUTE_INDEX_MIN:TIME_STRING_MINUTE_INDEX_MAX]
+        self.Second = time[TIME_STRING_SECOND_INDEX_MIN:]
 
         result += "Time:"
-        result += hour + ":" + minute + ":" + second
+        result += self.Hour + ":" + self.Minute + ":" + self.Second
         result += self.Separate
 
         return result
@@ -137,11 +152,15 @@ class NmeaSentence:
     def latitude_to_string(self):
         result = ""
 
+        self.LatitudeValue = None
+
         if len(self.Latitude) < LATITUDE_STRING_LENGTH_MIN:
             return result
 
         degree = self.Latitude[LATITUDE_STRING_DEGREE_INDEX_MIN:LATITUDE_STRING_DEGREE_INDEX_MAX]
         minute = self.Latitude[LATITUDE_STRING_MINUTE_INDEX_MIN:]
+
+        self.LatitudeValue = float(degree) + float(minute)/60.0
 
         result += "Latitude="
         result += degree + "\'" + minute + "\"" + self.LatitudeDirection
@@ -151,12 +170,15 @@ class NmeaSentence:
 
     def longitude_to_string(self):
         result = ""
+        self.LongitudeValue = None
 
         if len(self.Longitude) < LONGITUDE_STRING_LENGTH_MIN:
             return result
 
         degree = self.Longitude[LONGITUDE_STRING_DEGREE_INDEX_MIN:LONGITUDE_STRING_DEGREE_INDEX_MAX]
         minute = self.Longitude[LONGITUDE_STRING_MINUTE_INDEX_MAX:]
+
+        self.LongitudeValue = float(degree) + float(minute) / 60.0
 
         result += "Longitude="
         result += degree + "\'" + minute + "\"" + self.LongitudeDirection

@@ -58,7 +58,7 @@ class RMC(NmeaSentence):
         self.TrackAngle = self.Data[RMC_INDEX_TRACK_ANGLE]
         self.Date = self.Data[RMC_INDEX_DATE]
 
-        print self.to_string()
+        print(self.to_string())
 
     def track_angle_to_string(self):
         result = ""

@@ -73,7 +73,7 @@ class GGA(NmeaSentence):
         self.Altitude = self.Data[GGA_INDEX_ALTITUDE]
         self.AltitudeUnit = self.Data[GGA_INDEX_ALTITUDE_UNIT]
 
-        print self.to_string()
+        print(self.to_string())
 
     def fix_quality_to_string(self):
         result = ""

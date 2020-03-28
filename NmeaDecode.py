@@ -1,24 +1,5 @@
 #!/usr/bin/env python
-
-import os
-
-from BDGGA import BDGGA
-from BDGLL import BDGLL
-from BDGSA import BDGSA
-from BDGSV import BDGSV
-from BDRMC import BDRMC
-from BDVTG import BDVTG
-from GNGGA import GNGGA
-from GNGLL import GNGLL
-from GNGSA import GNGSA
-from GNGSV import GNGSV
-from GNRMC import GNRMC
-from GNVTG import GNVTG
-from GPGGA import GPGGA
-from GPGLL import GPGLL
-from GPGSA import GPGSA
-from GPGSV import GPGSV
-
+# sample NMEA sentence:
 # $GNRMC,075414.000,A,4004.680961,N,11614.576639,E,0.031,0.00,240320,,E,A*08
 #
 # $GNVTG,0.00,T,,M,0.031,N,0.058,K,A*2C
@@ -42,8 +23,38 @@ from GPGSV import GPGSV
 # $BDGSV,3,3,10,10,71,319,41,13,21,189,41*64
 #
 # $GNGLL,4004.680961,N,11614.576639,E,075414.000,A,A*4F
+
+import os
+import folium
+
+from BDGGA import BDGGA
+from BDGLL import BDGLL
+from BDGSA import BDGSA
+from BDGSV import BDGSV
+from BDRMC import BDRMC
+from BDVTG import BDVTG
+from GNGGA import GNGGA
+from GNGLL import GNGLL
+from GNGSA import GNGSA
+from GNGSV import GNGSV
+from GNRMC import GNRMC
+from GNVTG import GNVTG
+from GPGGA import GPGGA
+from GPGLL import GPGLL
+from GPGSA import GPGSA
+from GPGSV import GPGSV
 from GPRMC import GPRMC
 from GPVTG import GPVTG
+
+DEFAULT_INPUT_FILE_NAME = "nmea.txt"
+DEFAULT_OUTPUT_FILE_NAME = "nmea.out"
+
+MAP_DRAW_LINE = True
+MAP_DRAW_MARK = False
+MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
+MAP_DEFAULT_ZOOM_START = 12
+
+SAMPLE_DURATION_IN_SECOND = 1
 
 
 class Nmea:
@@ -74,7 +85,17 @@ class Nmea:
 
         self.LastSentence = ""
 
+        self.InputFileName = DEFAULT_INPUT_FILE_NAME
+        self.OutputFileName = DEFAULT_OUTPUT_FILE_NAME
+
         self.OutputFile = None
+
+        self.Map = folium.Map(
+            location=MAP_DEFAULT_LOCATION,
+            zoom_start=MAP_DEFAULT_ZOOM_START
+        )
+        self.Map.add_child(folium.LatLngPopup())
+        self.LocationList = []
 
     def set_last_sentence(self, sentence):
         if len(sentence) == 0:
@@ -92,16 +113,13 @@ class Nmea:
         self.OutputFile.write(text + "\n")
 
     def decode(self):
-        input_file_name = "nmea_7537.txt"
-        if not os.path.exists(input_file_name):
-            print(input_file_name, "file not found!")
+        if not os.path.exists(self.InputFileName):
+            print(self.InputFileName, "file not found!")
             return
 
-        output_file_name = "nmea.out"
+        self.OutputFile = open(self.OutputFileName, "w")
 
-        self.OutputFile = open(output_file_name, "w")
-
-        with open(input_file_name) as input_fp:
+        with open(self.InputFileName) as input_fp:
             for line in input_fp:
                 if line is None:
                     continue
@@ -182,12 +200,31 @@ class Nmea:
                     self.set_last_sentence(self.GNGLL.Sentence)
                     self.write_to_file(self.GNGLL.to_string())
 
+                    location = self.GNGLL.get_location(SAMPLE_DURATION_IN_SECOND)
+                    if location is not None:
+                        self.LocationList.append(location)
+
         self.OutputFile.close()
+
+    def draw(self):
+        if self.LocationList is None or len(self.LocationList) == 0:
+            print("No position to draw!")
+            return
+
+        if MAP_DRAW_MARK:
+            for location in self.LocationList:
+                folium.Marker(location=location).add_to(self.Map)
+
+        if MAP_DRAW_LINE:
+            folium.PolyLine(locations=self.LocationList).add_to(self.Map)
+
+        self.Map.save('index.html')
 
 
 def main():
     nmea = Nmea()
     nmea.decode()
+    nmea.draw()
     return 0
 
 

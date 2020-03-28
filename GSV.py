@@ -68,14 +68,14 @@ class GSV(NmeaSentence):
         self.SatelliteList = []
 
         index = GSV_INDEX_VIEW + 1
-        count = (len(self.Data) - GSV_DATA_LENGTH_MIN) / 4
+        count = int((len(self.Data) - GSV_DATA_LENGTH_MIN) / 4)
 
         for i in range(0, count):
             data = self.Data[index:index + GSV_SATELLITE_DATA_LENGTH]
             self.SatelliteList.append(Satellite(data))
             index += GSV_SATELLITE_DATA_LENGTH
 
-        print self.to_string()
+        print(self.to_string())
 
     def total_current_to_string(self):
         result = ""
