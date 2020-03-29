@@ -54,6 +54,8 @@ class GGA(NmeaSentence):
         self.HDOP = ""
 
     def decode(self, line):
+        self.__init__()
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
@@ -72,6 +74,10 @@ class GGA(NmeaSentence):
         self.HDOP = self.Data[GGA_INDEX_HDOP]
         self.Altitude = self.Data[GGA_INDEX_ALTITUDE]
         self.AltitudeUnit = self.Data[GGA_INDEX_ALTITUDE_UNIT]
+
+        self.decode_time()
+        self.decode_latitude()
+        self.decode_longitude()
 
         print(self.to_string())
 

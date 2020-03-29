@@ -43,9 +43,11 @@ class GSA(NmeaSentence):
 
         self.Selection = ""
         self.FixType = ""
-        self.Used = []
+        self.Used = None
 
     def decode(self, line):
+        self.__init__()
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:

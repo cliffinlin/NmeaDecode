@@ -40,6 +40,8 @@ class RMC(NmeaSentence):
         self.TrackAngle = ""
 
     def decode(self, line):
+        self.__init__()
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
@@ -57,6 +59,11 @@ class RMC(NmeaSentence):
         self.SpeedN = self.Data[RMC_INDEX_SPEED_N]
         self.TrackAngle = self.Data[RMC_INDEX_TRACK_ANGLE]
         self.Date = self.Data[RMC_INDEX_DATE]
+
+        self.decode_time()
+        self.decode_latitude()
+        self.decode_longitude()
+        self.decode_date()
 
         print(self.to_string())
 

@@ -39,6 +39,8 @@ class VTG(NmeaSentence):
         self.SpeedMMark = ""
 
     def decode(self, line):
+        self.__init__()
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:

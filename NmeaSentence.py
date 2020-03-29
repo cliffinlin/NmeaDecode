@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-SEPARATE_STRING = ",\t"
-
 DATE_STRING_LENGTH_MIN = 6
 DATE_STRING_DAY_INDEX_MIN = 0
 DATE_STRING_DAY_INDEX_MAX = 2
@@ -26,6 +24,8 @@ LONGITUDE_STRING_DEGREE_INDEX_MIN = 0
 LONGITUDE_STRING_DEGREE_INDEX_MAX = 3
 LONGITUDE_STRING_MINUTE_INDEX_MAX = 3
 
+DEFAULT_ROUND_NDIGITS = 4
+SEPARATE_STRING = ",\t"
 
 class NmeaSentence:
     def __init__(self):
@@ -34,7 +34,7 @@ class NmeaSentence:
         self.Sentence = ""
         self.DataType = ""
         self.Checksum = ""
-        self.Data = []
+        self.Data = None
 
         self.Date = ""
         self.Year = None
@@ -45,8 +45,6 @@ class NmeaSentence:
         self.Hour = None
         self.Minute = None
         self.Second = None
-
-        self.LastDateTime = None
 
         self.Latitude = ""
         self.LatitudeDirection = ""
@@ -67,8 +65,7 @@ class NmeaSentence:
         self.SpeedM = ""
 
     def decode(self, line):
-        self.Sentence = ""
-        self.Data = None
+        self.__init__()
 
         if line is None:
             return
@@ -104,44 +101,54 @@ class NmeaSentence:
         self.DataType = list_b[0]
         self.Data = list_b[1:]
 
-    def date_to_string(self):
-        result = ""
+    def decode_date(self):
+        if self.Date is None:
+            return
 
         date = self.Date.strip()
         if date is None:
-            return result
+            return
         if len(date) < DATE_STRING_LENGTH_MIN:
+            return
+
+        self.Day = date[DATE_STRING_DAY_INDEX_MIN:DATE_STRING_DAY_INDEX_MAX]
+        self.Month = date[DATE_STRING_MONTH_INDEX_MIN:DATE_STRING_MONTH_INDEX_MAX]
+        self.Year = date[DATE_STRING_YEAR_INDEX_MIN:]
+
+        if len(self.Year) == 2:
+            self.Year = "20" + self.Year
+
+    def date_to_string(self):
+        result = ""
+
+        if self.Year is None or self.Month is None or self.Day is None:
             return result
-
-        day = date[DATE_STRING_DAY_INDEX_MIN:DATE_STRING_DAY_INDEX_MAX]
-        month = date[DATE_STRING_MONTH_INDEX_MIN:DATE_STRING_MONTH_INDEX_MAX]
-        year = date[DATE_STRING_YEAR_INDEX_MIN:]
-
-        if len(year) == 2:
-            year = "20" + year
 
         result += "Date:"
-        result += year + "-" + month + "-" + day
+        result += self.Year + "-" + self.Month + "-" + self.Day
         result += self.Separate
 
         return result
 
-    def time_to_string(self):
-        result = ""
-
-        self.Hour = None
-        self.Minute = None
-        self.Second = None
+    def decode_time(self):
+        if self.Time is None:
+            return
 
         time = self.Time.strip()
         if time is None:
-            return result
+            return
         if len(time) < TIME_STRING_LENGTH_MIN:
-            return result
+            return
 
         self.Hour = time[TIME_STRING_HOUR_INDEX_MIN:TIME_STRING_HOUR_INDEX_MAX]
         self.Minute = time[TIME_STRING_MINUTE_INDEX_MIN:TIME_STRING_MINUTE_INDEX_MAX]
         self.Second = time[TIME_STRING_SECOND_INDEX_MIN:]
+
+    def time_to_string(self):
+        result = ""
+
+        if self.Hour is None or self.Minute is None or self.Second is None:
+            return result
 
         result += "Time:"
         result += self.Hour + ":" + self.Minute + ":" + self.Second
@@ -149,39 +156,55 @@ class NmeaSentence:
 
         return result
 
-    def latitude_to_string(self):
-        result = ""
-
-        self.LatitudeValue = None
+    def decode_latitude(self):
+        if self.Latitude is None or self.LatitudeDirection is None:
+            return
 
         if len(self.Latitude) < LATITUDE_STRING_LENGTH_MIN:
-            return result
+            return
 
         degree = self.Latitude[LATITUDE_STRING_DEGREE_INDEX_MIN:LATITUDE_STRING_DEGREE_INDEX_MAX]
         minute = self.Latitude[LATITUDE_STRING_MINUTE_INDEX_MIN:]
 
-        self.LatitudeValue = float(degree) + float(minute)/60.0
+        self.LatitudeValue = float(degree) + float(minute) / 60.0
+
+        if self.LatitudeDirection == "S":
+            self.LatitudeValue = -1 * self.LatitudeValue
+
+    def latitude_to_string(self):
+        result = ""
+
+        if self.LatitudeValue is None:
+            return result
 
         result += "Latitude="
-        result += degree + "\'" + minute + "\"" + self.LatitudeDirection
+        result += str(self.LatitudeValue)
         result += self.Separate
 
         return result
 
-    def longitude_to_string(self):
-        result = ""
-        self.LongitudeValue = None
+    def decode_longitude(self):
+        if self.Longitude is None or self.LongitudeDirection is None:
+            return
 
         if len(self.Longitude) < LONGITUDE_STRING_LENGTH_MIN:
-            return result
+            return
 
         degree = self.Longitude[LONGITUDE_STRING_DEGREE_INDEX_MIN:LONGITUDE_STRING_DEGREE_INDEX_MAX]
         minute = self.Longitude[LONGITUDE_STRING_MINUTE_INDEX_MAX:]
 
         self.LongitudeValue = float(degree) + float(minute) / 60.0
 
+        if self.LongitudeDirection == "W":
+            self.LongitudeValue = -1 * self.Longitude
+
+    def longitude_to_string(self):
+        result = ""
+        if self.LongitudeValue is None:
+            return result
+
         result += "Longitude="
-        result += degree + "\'" + minute + "\"" + self.LongitudeDirection
+        result += str(self.LongitudeValue)
         result += self.Separate
 
         return result
