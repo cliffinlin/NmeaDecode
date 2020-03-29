@@ -74,7 +74,7 @@ class RMC(NmeaSentence):
             return result
 
         result += "TrackAngle="
-        result += self.TrackAngle + "\'"
+        result += self.TrackAngle
         result += self.Separate
 
         return result

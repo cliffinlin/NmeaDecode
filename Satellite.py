@@ -49,7 +49,7 @@ class Satellite:
         if len(self.Elevation) == 0:
             return result
 
-        result += self.Elevation + "\'"
+        result += self.Elevation
         result += self.Separate
 
         return result
@@ -60,7 +60,7 @@ class Satellite:
         if len(self.Azimuth) == 0:
             return result
 
-        result += self.Azimuth + "\'"
+        result += self.Azimuth
         result += self.Separate
 
         return result
@@ -70,7 +70,7 @@ class Satellite:
 
         result += self.SNR
         result += self.Separate
-        result += ",\t"
+        result += "\t"
 
         return result
 

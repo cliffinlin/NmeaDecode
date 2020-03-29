@@ -67,7 +67,7 @@ class VTG(NmeaSentence):
             return result
 
         result += "TrueTrack="
-        result += self.TrueTrack + "\'"
+        result += self.TrueTrack
         result += self.Separate
 
         return result
@@ -79,7 +79,7 @@ class VTG(NmeaSentence):
             return result
 
         result += "MagneticTrack="
-        result += self.MagneticTrack + "\'"
+        result += self.MagneticTrack
         result += self.Separate
 
         return result
