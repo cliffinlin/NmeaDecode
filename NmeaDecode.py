@@ -46,9 +46,12 @@ from GPGSV import GPGSV
 from GPRMC import GPRMC
 from GPVTG import GPVTG
 from NavigateData import NavigateData
+from LogFile import LogFile
 
-DEFAULT_INPUT_FILE_NAME = "nmea.txt"
-DEFAULT_OUTPUT_FILE_NAME = "nmea.out"
+FILE_NAME_LOG = "log.txt"
+FILE_NAME_LOG_SORTED = "sorted.txt"
+FILE_NAME_OUTPUT = "nmea.out"
+FILE_NAME_MAP_VIEW = 'index.html'
 
 MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
 MAP_DEFAULT_ZOOM_START = 12
@@ -92,15 +95,15 @@ class NmeaDecode:
 
         self.LastDateTime = None
 
-        self.InputFileName = DEFAULT_INPUT_FILE_NAME
+        self.InputFileName = FILE_NAME_LOG_SORTED
         self.InputFile = None
 
-        self.OutputFileName = DEFAULT_OUTPUT_FILE_NAME
+        self.OutputFileName = FILE_NAME_OUTPUT
         self.OutputFile = None
 
         self.Map = folium.Map(
-            location=MAP_DEFAULT_LOCATION,
-            zoom_start=MAP_DEFAULT_ZOOM_START
+            location = MAP_DEFAULT_LOCATION,
+            zoom_start = MAP_DEFAULT_ZOOM_START
         )
         self.Map.add_child(folium.LatLngPopup())
 
@@ -158,34 +161,50 @@ class NmeaDecode:
                     self.GPGGA.decode(line)
                     self.set_last_sentence(self.GPGGA.Sentence)
                     self.write_to_file(self.GPGGA.to_string())
+                    navigate_data.set_altitude(self.GPGGA.Altitude)
                 elif "$BDGGA" in line:
                     self.BDGGA.decode(line)
                     self.set_last_sentence(self.BDGGA.Sentence)
                     self.write_to_file(self.BDGGA.to_string())
+                    navigate_data.set_altitude(self.BDGGA.Altitude)
                 elif "$GNGGA" in line:
                     self.GNGGA.decode(line)
                     self.set_last_sentence(self.GNGGA.Sentence)
                     self.write_to_file(self.GNGGA.to_string())
+                    navigate_data.set_altitude(self.GNGGA.Altitude)
                 elif "$GPGSA" in line:
                     self.GPGSA.decode(line)
                     self.set_last_sentence(self.GPGSA.Sentence)
                     self.write_to_file(self.GPGSA.to_string())
+                    navigate_data.set_fix_type(self.GPGSA.FixType)
+                    navigate_data.set_pdop(self.GPGSA.PDOP)
+                    navigate_data.set_hdop(self.GPGSA.HDOP)
+                    navigate_data.set_vdop(self.GPGSA.VDOP)
                 elif "$BDGSA" in line:
                     self.BDGSA.decode(line)
                     self.set_last_sentence(self.BDGSA.Sentence)
                     self.write_to_file(self.BDGSA.to_string())
+                    navigate_data.set_fix_type(self.BDGSA.FixType)
+                    navigate_data.set_pdop(self.BDGSA.PDOP)
+                    navigate_data.set_hdop(self.BDGSA.HDOP)
+                    navigate_data.set_vdop(self.BDGSA.VDOP)
                 elif "$GNGSA" in line:
                     self.GNGSA.decode(line)
                     self.set_last_sentence(self.GNGSA.Sentence)
                     self.write_to_file(self.GNGSA.to_string())
+                    navigate_data.set_pdop(self.GNGSA.PDOP)
+                    navigate_data.set_hdop(self.GNGSA.HDOP)
+                    navigate_data.set_vdop(self.GNGSA.VDOP)
                 elif "$GPGSV" in line:
                     self.GPGSV.decode(line)
                     self.set_last_sentence(self.GPGSV.Sentence)
                     self.write_to_file(self.GPGSV.to_string())
+                    navigate_data.set_gps_view(self.GPGSV.View)
                 elif "$BDGSV" in line:
                     self.BDGSV.decode(line)
                     self.set_last_sentence(self.BDGSV.Sentence)
                     self.write_to_file(self.BDGSV.to_string())
+                    navigate_data.set_bds_view(self.BDGSV.View)
                 elif "$GNGSV" in line:
                     self.GNGSV.decode(line)
                     self.set_last_sentence(self.GNGSV.Sentence)
@@ -273,10 +292,14 @@ class NmeaDecode:
         if MAP_DRAW_LINE:
             folium.PolyLine(locations=location_list).add_to(self.Map)
 
-        self.Map.save('index.html')
+        self.Map.save(FILE_NAME_MAP_VIEW)
+        print("Map saved in " + FILE_NAME_MAP_VIEW)
 
 
 def main():
+    log_file = LogFile()
+    log_file.sort(FILE_NAME_LOG, FILE_NAME_LOG_SORTED)
+
     nmea_decode = NmeaDecode()
     nmea_decode.decode()
     nmea_decode.draw()
