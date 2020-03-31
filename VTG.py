@@ -31,13 +31,6 @@ class VTG(NmeaSentence):
     def __init__(self):
         NmeaSentence.__init__(self)
 
-        self.TrueTrack = ""
-        self.TrueTrackMark = ""
-        self.MagneticTrack = ""
-        self.MagneticTrackMark = ""
-        self.SpeedNMark = ""
-        self.SpeedMMark = ""
-
     def decode(self, line):
         self.__init__()
 
@@ -59,30 +52,6 @@ class VTG(NmeaSentence):
         self.SpeedMMark = self.Data[VTG_INDEX_SPEED_M_MARK]
 
         print(self.to_string())
-
-    def true_track_to_string(self):
-        result = ""
-
-        if len(self.TrueTrack) == 0:
-            return result
-
-        result += "TrueTrack="
-        result += self.TrueTrack
-        result += self.Separate
-
-        return result
-
-    def magnetic_track_to_string(self):
-        result = ""
-
-        if len(self.MagneticTrack) == 0:
-            return result
-
-        result += "MagneticTrack="
-        result += self.MagneticTrack
-        result += self.Separate
-
-        return result
 
     def to_string(self):
         result = ""

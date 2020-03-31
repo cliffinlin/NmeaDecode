@@ -1,189 +1,60 @@
 #!/usr/bin/env python
 
-import datetime
 
-DEFAULT_ROUND_NDIGITS = 4
+from NmeaSentence import NmeaSentence
+
 SEPARATE_STRING = " "
 
 
-class NavigateData:
+class NavigateData(NmeaSentence):
     def __init__(self):
+        NmeaSentence.__init__(self)
+
         self.Separate = SEPARATE_STRING
 
-        self.Date = ""
-        self.Year = None
-        self.Month = None
-        self.Day = None
-
-        self.Time = ""
-        self.Hour = None
-        self.Minute = None
-        self.Second = None
-
-        self.Latitude = ""
-        self.LatitudeValue = None
-        self.Longitude = ""
-        self.LongitudeValue = None
-        self.Altitude = ""
-
-        self.SpeedM = ""
-
-        self.FixType = ""
-
         self.GPSView = ""
-        self.GPSUsed = ""
-
         self.BDSView = ""
-        self.BDSUsed = ""
 
-        self.PDOP = ""
-        self.HDOP = ""
-        self.VDOP = ""
+        self.GPSUsed = None
+        self.BDSUsed = None
 
-    def get_datetime(self):
-        result = None
+        self.GPSSatelliteList = []
+        self.BDSSatelliteList = []
 
-        if self.Hour is None or self.Minute is None or self.Second is None:
-            return result
+    def set_gps_view(self, view):
+        self.GPSView = view
 
-        result = datetime.datetime.strptime(self.Hour + ":" + self.Minute + ":" + self.Second[0:2], '%H:%M:%S')
-        return result
+    def set_bds_view(self, view):
+        self.BDSView = view
 
-    def set_date(self, date, day, month, year):
-        self.Date = date
-        self.Day = day
-        self.Month = month
-        self.Year = year
+    def set_used(self, used):
+        self.Used = used
 
-    def set_time(self, time, hour, minute, second):
-        self.Time = time
-        self.Hour = hour
-        self.Minute = minute
-        self.Second = second
+    def set_gps_used(self, used):
+        self.GPSUsed = used
 
-    def set_latitude(self, latitude, latitudeValue):
-        self.Latitude = latitude
-        self.LatitudeValue = latitudeValue
+    def set_bds_used(self, used):
+        self.BDSUsed = used
 
-    def set_longitude(self, longitude, longitudeValue):
-        self.Longitude = longitude
-        self.LongitudeValue = longitudeValue
+    def set_satellite_list(self, satellite_list):
+        if satellite_list is None:
+            return
+        self.SatelliteList.extend(satellite_list)
 
-    def set_altitude(self, altitude):
-        self.Altitude = altitude
+    def set_gps_satellite_list(self, satellite_list):
+        if satellite_list is None:
+            return
+        self.GPSSatelliteList.extend(satellite_list)
 
-    def set_speed_m(self, speed_m):
-        self.SpeedM = speed_m
-
-    def set_fix_type(self, fix_type):
-        self.FixType = fix_type
-
-    def set_gps_view(self, gps_view):
-        self.GPSView = gps_view
-
-    def set_gps_used(self, gps_used):
-        self.GPSUsed = gps_used
-
-    def set_bds_view(self, bds_view):
-        self.BDSView = bds_view
-
-    def set_bds_used(self, bds_used):
-        self.BDSUsed = bds_used
-
-    def set_pdop(self, pdop):
-        self.PDOP = pdop
-
-    def set_hdop(self, hdop):
-        self.HDOP = hdop
-
-    def set_vdop(self, vdop):
-        self.VDOP = vdop
-
-    def date_time_to_string(self):
-        result = ""
-
-        if self.Year is None or self.Month is None or self.Day is None or self.Hour is None or self.Minute is None or self.Second is None:
-            return result
-
-        utc_datetime = datetime.datetime.strptime(
-            self.Year + "-" + self.Month + "-" + self.Day + " " + self.Hour + ":" + self.Minute + ":" + self.Second,
-            '%Y-%m-%d %H:%M:%S.%f')
-        local_datetime = utc_datetime + datetime.timedelta(hours=8)
-
-        result += local_datetime.strftime('%Y-%m-%d %H:%M:%S')
-        result += self.Separate
-
-        return result
-
-    def latitude_to_string(self):
-        result = ""
-
-        if self.LatitudeValue is None:
-            return result
-
-        result += str(self.LatitudeValue)
-        result += self.Separate
-
-        return result
-
-    def longitude_to_string(self):
-        result = ""
-        if self.LongitudeValue is None:
-            return result
-
-        result += str(self.LongitudeValue)
-        result += self.Separate
-
-        return result
-
-    def altitude_to_string(self):
-        result = ""
-
-        if len(self.Altitude) == 0:
-            return result
-
-        result += "Altitude="
-        result += self.Altitude + "M"
-        result += self.Separate
-
-        return result
-
-    def speed_m_to_string(self):
-        result = ""
-
-        if len(self.SpeedM) == 0:
-            return result
-
-        result += "Speed="
-        result += self.SpeedM + "KM"
-        result += self.Separate
-
-        return result
-
-    def fix_type_to_string(self):
-        result = ""
-
-        if len(self.FixType) == 0:
-            return result
-
-        result += "FixType="
-
-        value = int(self.FixType)
-        if value == 1:
-            result += "NoFix"
-        elif value == 2:
-            result += "2DFix"
-        elif value == 3:
-            result += "3DFix"
-
-        result += self.Separate
-
-        return result
+    def set_bds_satellite_list(self, satellite_list):
+        if satellite_list is None:
+            return
+        self.BDSSatelliteList.extend(satellite_list)
 
     def gps_view_to_string(self):
         result = ""
 
-        if len(self.GPSView) == 0:
+        if self.GPSView is None or len(self.GPSView) == 0:
             return result
 
         result += "GPSView="
@@ -195,7 +66,7 @@ class NavigateData:
     def bds_view_to_string(self):
         result = ""
 
-        if len(self.BDSView) == 0:
+        if self.BDSView is None or len(self.BDSView) == 0:
             return result
 
         result += "BDSView="
@@ -204,55 +75,114 @@ class NavigateData:
 
         return result
 
-    def pdop_to_string(self):
+    def gps_used_to_string(self):
         result = ""
 
-        if len(self.PDOP) == 0:
+        if self.GPSUsed is None or len(self.GPSUsed) == 0:
             return result
 
-        result += "PDOP="
-        result += self.PDOP
+        result += "GPSUsed:"
+
+        count = 0
+        for prn in self.GPSUsed:
+            if prn is not None and len(prn) > 0:
+                if count == 0:
+                    result += "#" + prn
+                else:
+                    result += "," + "#" + prn
+            count += 1
+
         result += self.Separate
 
         return result
 
-    def hdop_to_string(self):
+    def bds_used_to_string(self):
         result = ""
 
-        if len(self.HDOP) == 0:
+        if self.BDSUsed is None or len(self.BDSUsed) == 0:
             return result
 
-        result += "HDOP="
-        result += self.HDOP
+        result += "BDSUsed:"
+
+        count = 0
+        for prn in self.BDSUsed:
+            if prn is not None and len(prn) > 0:
+                if count == 0:
+                    result += "#" + prn
+                else:
+                    result += "," + "#" + prn
+            count += 1
+
         result += self.Separate
 
         return result
 
-    def vdop_to_string(self):
+    def satellite_list_to_string(self):
         result = ""
 
-        if len(self.VDOP) == 0:
+        if self.SatelliteList is None or len(self.SatelliteList) == 0:
             return result
 
-        result += "VDOP="
-        result += self.VDOP
-        result += self.Separate
+        for satellite in self.SatelliteList:
+            if satellite is not None:
+                result += satellite.to_string()
+
+        return result
+
+    def gps_satellite_list_to_string(self):
+        result = ""
+
+        if self.GPSSatelliteList is None or len(self.GPSSatelliteList) == 0:
+            return result
+
+        for satellite in self.GPSSatelliteList:
+            if satellite is not None:
+                result += satellite.to_string()
+
+        return result
+
+    def bds_satellite_list_to_string(self):
+        result = ""
+
+        if self.BDSSatelliteList is None or len(self.BDSSatelliteList) == 0:
+            return result
+
+        for satellite in self.BDSSatelliteList:
+            if satellite is not None:
+                result += satellite.to_string()
 
         return result
 
     def to_string(self):
         result = ""
 
-        result += self.date_time_to_string()
+        result += self.local_date_time_to_string()
+
         result += self.latitude_to_string()
         result += self.longitude_to_string()
         result += self.altitude_to_string()
+
         result += self.speed_m_to_string()
+
+        result += self.fix_quality_to_string()
         result += self.fix_type_to_string()
-        result += self.gps_view_to_string()
-        result += self.bds_view_to_string()
+
         result += self.pdop_to_string()
         result += self.hdop_to_string()
         result += self.vdop_to_string()
+
+        result += self.tracked_number_to_string()
+
+        result += self.gps_used_to_string()
+        result += self.gps_view_to_string()
+        result += self.gps_satellite_list_to_string()
+
+        result += self.bds_used_to_string()
+        result += self.bds_view_to_string()
+        result += self.bds_satellite_list_to_string()
+
+        result += self.used_to_string()
+        result += self.view_to_string()
+        result += self.satellite_list_to_string()
 
         return result

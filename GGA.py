@@ -49,10 +49,6 @@ class GGA(NmeaSentence):
     def __init__(self):
         NmeaSentence.__init__(self)
 
-        self.FixQuality = ""
-        self.TrackedNumber = ""
-        self.HDOP = ""
-
     def decode(self, line):
         self.__init__()
 
@@ -80,51 +76,6 @@ class GGA(NmeaSentence):
         self.decode_longitude()
 
         print(self.to_string())
-
-    def fix_quality_to_string(self):
-        result = ""
-        remark = ""
-
-        if len(self.FixQuality) == 0:
-            return result
-
-        value = int(self.FixQuality)
-
-        if value == 0:
-            remark = "Invalid"
-        elif value == 1:
-            remark = "SPS Fix"
-        elif value == 2:
-            remark = "DGPS Fix"
-        elif value == 3:
-            remark = "PPS Fix"
-        elif value == 4:
-            remark = "Real Time Kinematic"
-        elif value == 5:
-            remark = "Float RTK"
-        elif value == 6:
-            remark = "Estimated"
-
-        if len(remark) == 0:
-            return result
-
-        result = "FixQuality:"
-        result += remark
-        result += self.Separate
-
-        return result
-
-    def tracked_number_to_string(self):
-        result = ""
-
-        if len(self.TrackedNumber) == 0:
-            return result
-
-        result += "TrackedNumber="
-        result += self.TrackedNumber
-        result += self.Separate
-
-        return result
 
     def to_string(self):
         result = ""

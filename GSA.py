@@ -41,10 +41,6 @@ class GSA(NmeaSentence):
     def __init__(self):
         NmeaSentence.__init__(self)
 
-        self.Selection = ""
-        self.FixType = ""
-        self.Used = None
-
     def decode(self, line):
         self.__init__()
 
@@ -64,63 +60,6 @@ class GSA(NmeaSentence):
         self.VDOP = self.Data[GSA_INDEX_VDOP]
 
         print(self.to_string())
-
-    def selection_to_string(self):
-        result = ""
-
-        if len(self.Selection) == 0:
-            return result
-
-        result += "Selection:"
-        if "A" in self.Selection:
-            result += "Auto"
-        elif "M" in self.Selection:
-            result += "Manual"
-
-        result += self.Separate
-
-        return result
-
-    def fix_type_to_string(self):
-        result = ""
-
-        if len(self.FixType) == 0:
-            return result
-
-        result += "FixType:"
-
-        value = int(self.FixType)
-        if value == 1:
-            result += "No Fix"
-        elif value == 2:
-            result += "2D Fix"
-        elif value == 3:
-            result += "3D Fix"
-
-        result += self.Separate
-
-        return result
-
-    def used_to_string(self):
-        result = ""
-
-        if len(self.Used) == 0:
-            return result
-
-        result += "Used:"
-
-        count = 0
-        for prn in self.Used:
-            if len(prn) > 0:
-                if count == 0:
-                    result += "#" + prn
-                else:
-                    result += "," + "#" + prn
-            count += 1
-
-        result += self.Separate
-
-        return result
 
     def to_string(self):
         result = ""

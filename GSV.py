@@ -49,8 +49,6 @@ class GSV(NmeaSentence):
 
         self.Total = ""
         self.Current = ""
-        self.View = ""
-        self.SatelliteList = None
 
     def decode(self, line):
         self.__init__()
@@ -79,25 +77,13 @@ class GSV(NmeaSentence):
 
         print(self.to_string())
 
-    def total_current_to_string(self):
+    def current_total_to_string(self):
         result = ""
 
         if len(self.Current) == 0 or len(self.Total) == 0:
             return result
 
         result += self.Current + "/" + self.Total
-        result += self.Separate
-
-        return result
-
-    def view_to_string(self):
-        result = ""
-
-        if len(self.View) == 0:
-            return result
-
-        result += "View="
-        result += self.View
         result += self.Separate
 
         return result
@@ -110,11 +96,8 @@ class GSV(NmeaSentence):
 
         result = NmeaSentence.to_string(self)
 
-        result += self.total_current_to_string() \
-                  + self.view_to_string()
-
-        for satellite in self.SatelliteList:
-            if satellite is not None:
-                result += satellite.to_string()
+        result += self.current_total_to_string() \
+                  + self.view_to_string() \
+                  + self.satellite_list_to_string()
 
         return result
