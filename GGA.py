@@ -41,8 +41,12 @@ GGA_INDEX_TRACKED_NUMBER = 6
 GGA_INDEX_HDOP = 7
 GGA_INDEX_ALTITUDE = 8
 GGA_INDEX_ALTITUDE_UNIT = 9
+GGA_INDEX_GEOID_SEPARATION = 10
+GGA_INDEX_GEOID_SEPARATION_UNIT = 11
+GGA_INDEX_DIFFERENTIAL_DATA_AGE = 12
+GGA_INDEX_REFERENCE_STATION_ID = 13
 
-GGA_DATA_LENGTH_MIN = GGA_INDEX_ALTITUDE_UNIT + 1
+GGA_DATA_LENGTH_MIN = GGA_INDEX_REFERENCE_STATION_ID + 1
 
 
 class GGA(NmeaSentence):
@@ -70,6 +74,10 @@ class GGA(NmeaSentence):
         self.HDOP = self.Data[GGA_INDEX_HDOP]
         self.Altitude = self.Data[GGA_INDEX_ALTITUDE]
         self.AltitudeUnit = self.Data[GGA_INDEX_ALTITUDE_UNIT]
+        self.GeoidSeparation = self.Data[GGA_INDEX_GEOID_SEPARATION]
+        self.GeoidSeparationUnit = self.Data[GGA_INDEX_GEOID_SEPARATION_UNIT]
+        self.DifferentialDataAge = self.Data[GGA_INDEX_DIFFERENTIAL_DATA_AGE]
+        self.ReferenceStationID = self.Data[GGA_INDEX_REFERENCE_STATION_ID]
 
         self.decode_time()
         self.decode_latitude()
@@ -91,6 +99,9 @@ class GGA(NmeaSentence):
                   + self.fix_quality_to_string() \
                   + self.tracked_number_to_string() \
                   + self.hdop_to_string() \
-                  + self.altitude_to_string()
+                  + self.altitude_to_string() \
+                  + self.geoid_separation_to_string() \
+                  + self.differential_data_age_to_string()\
+                  + self.reference_station_id_to_string()
 
         return result

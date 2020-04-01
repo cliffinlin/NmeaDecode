@@ -87,6 +87,11 @@ class NmeaSentence:
         self.SpeedM = ""
         self.SpeedMMark = ""
 
+        self.GeoidSeparation = ""
+        self.GeoidSeparationUnit = ""
+        self.DifferentialDataAge = ""
+        self.ReferenceStationID = ""
+
     def decode(self, line):
         self.__init__()
 
@@ -348,6 +353,80 @@ class NmeaSentence:
         return result
 
     def fix_quality_to_string(self):
+        # http://resources.esri.com/help/9.3/arcgismobile/adf/ESRI.ArcGIS.Mobile~ESRI.ArcGIS.Mobile.Gps.GpsFixStatus.html
+        #
+        # The fix status indicates the type of signal or technique being used by the GPS receiver to determine it’s
+        # location. The fix status is important for the GPS consumer, as it indicates the quality of the signal,
+        # or the accuracy and reliability of the location being reported. The GPS receiver includes the fix status
+        # with the NMEA sentence broadcast to the Mobile SDK. For a better understanding of the GPS technology and
+        # terms please review our understanding GPS document. The fix type is determined by the receiver based on
+        # number of satellites visible, the type of GPS receiver and the GPS technology being used.
+        #
+        # INVALIDFIX indicates that there is no satelitte signal being received or there are not enough satelittes
+        # available for proper location determination.
+        #
+        # GPSFix indicates a standard GPS signal, or Standard Positioning Service (SPS) is being used. SPS is the
+        # standard specified level of positioning and timing accuracy that is available, without qualification or
+        # restrictions, to any user on a continuous worldwide basis. The accuracy of this service will be established
+        # by the U.S. Department of Defense based on U.S. security interests.
+        #
+        # DGPSFix indicates that Differential GPS is being used to proved increased accuracy over SPS. This technique
+        # uses a network of fixed ground based reference stations to broadcast the difference between the positions
+        # indicated by the satellite systems and the known fixed positions. These stations broadcast the difference
+        # between the measured satellite pseudoranges and actual (internally computed) pseudoranges, and receiver
+        # stations may correct their pseudoranges by the same amount.
+        #
+        # PPSFix indicates that Precise Positioning System, encrypted for government use is being used by the
+        # receiver. PPS is the most accurate positioning, velocity, and timing information continuously available,
+        # worldwide, from the basic GPS. This service will be limited to authorized U.S. and allied Federal
+        # Governments; authorized foreign and military users; and eligible civil users. Unauthorized users will be
+        # denied access to PPS through the use of cryptography.
+        #
+        # REAL TIME KINEMATIC (RTK) satellite navigation is a technique used in land survey based on the use of
+        # carrier phase measurements of the GPS, GLONASS and/or Galileo signals where a single reference station
+        # provides the real-time corrections of even to a centimeter level of accuracy. When referring to GPS in
+        # particular, the system is also commonly referred to as Carrier-Phase Enhancement, CPGPS. This GPS technique
+        # uses the radio signal (carrier) to refine it location initially calculated using DGPS. The receivers are
+        # able to reachy this level of accuracy by performing an initialization, that requires data from at least
+        # five common satellites to initialize on-the-fly (in motion) tracking at least four common satellites after
+        # initializing.
+        #
+        # FLOAT REAL TIME KINEMATIC( Float RTK) is very similar to the fixed RTK method of calculating location,
+        # but is not as precise, typically around 20 cm to 1 meter accuracy range. This decreased accuracy is offset
+        # by increased speed, since the time consuming initializaton phase is skipped.
+        #
+        # ESTIMATED FIX or Dead reckoning is the determination of a location based on computations of position given
+        # an accurately known point of origin and measurements of speed, heading and elapsed time. Dead reckoning
+        # coupled with GPS positioning provides a powerful navigation solution. GPS positioning provides highly
+        # accurate “points of origin” when exposed to sufficient satellite signal strengths during a trip. Dead
+        # reckoning can be used to “fill in the gaps” when there are insufficient GPS signal strength to obtain an
+        # accurate position.
+        #
+        # MANUAL FIX STATUS - indicates that the location has been manually entered into the GPS receiver, and is not
+        # based on the sateliite system. This type of fix is useful for entering the coordinates of a known location,
+        # that has been previously measured. In this type of GPS fix the location has been input directly into the
+        # GPS receiver, which then reports that to the GSPconnection as a NMEA Sentence. If you are manually entering
+        # a coordinate location into a ArcGIS Mobile application, you would typically go directely into the GIS
+        # database and not though the GPS receiver.
+        #
+        # SIMULATION MODE This mode is not always called simulation mode on the different models. On the some models
+        # it is called "demo mode" or "gps off" while others call it "Use Indoors" or "gps off". Upon entering
+        # simulation mode you will find that the gps seems to have a lock on satellites and everything works
+        # similarly to the way it works when you actually have a fix. The satellite status page shows that you have a
+        # lock on the satellite graphic display and indicates that you are in Simulation mode in the status text
+        # field. The rest of the fields in the unit do not show that you are in simulation mode but may have extra
+        # commands or other information and may perform differently. For example, the units with object oriented
+        # commands add selection capability for speed and track settings so that you can change them on any screen at
+        # any time to permit simulating actual movement while using the gps. Menu oriented units set this information
+        # on the original simulation mode setup screen so if you wish to change it you need to revisit the setup
+        # screen.
+        #
+        # One of the uses of simulation mode is to allow for route and waypoint maintenance. While you can perform
+        # maintenance on a unit that is trying to track satellites you may get "poor gps coverage" because you are
+        # using it indoors or other annoying messages. Setting simulation mode avoids these messages and as a bonus
+        # saves about 1/2 on the battery consumption since in this mode all of the power is removed from the receiver
+        # circuitry.
+
         result = ""
         remark = ""
 
@@ -361,13 +440,13 @@ class NmeaSentence:
         elif value == 1:
             remark = "SPS"
         elif value == 2:
-            remark = "DGPS"
+            remark = "Differential"
         elif value == 3:
             remark = "PPS"
         elif value == 4:
-            remark = "RTK"
+            remark = "RTK Fixed"
         elif value == 5:
-            remark = "Float RTK"
+            remark = "RTK Float"
         elif value == 6:
             remark = "Estimated"
 
@@ -570,6 +649,45 @@ class NmeaSentence:
 
         result += "Speed="
         result += self.SpeedM + "KM"
+        result += self.Separate
+
+        return result
+
+    def geoid_separation_to_string(self):
+        result = ""
+
+        if self.GeoidSeparation is None or len(self.GeoidSeparation) == 0:
+            return result
+
+        if self.GeoidSeparationUnit is None or len(self.GeoidSeparationUnit) == 0:
+            return result
+
+        result += "GeoidSeparation="
+        result += self.GeoidSeparation + self.GeoidSeparationUnit
+        result += self.Separate
+
+        return result
+
+    def differential_data_age_to_string(self):
+        result = ""
+
+        if self.DifferentialDataAge is None or len(self.DifferentialDataAge) == 0:
+            return result
+
+        result += "DifferentialDataAge="
+        result += self.DifferentialDataAge
+        result += self.Separate
+
+        return result
+
+    def reference_station_id_to_string(self):
+        result = ""
+
+        if self.ReferenceStationID is None or len(self.ReferenceStationID) == 0:
+            return result
+
+        result += "ReferenceStationID="
+        result += self.ReferenceStationID
         result += self.Separate
 
         return result
