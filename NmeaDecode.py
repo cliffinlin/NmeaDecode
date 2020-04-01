@@ -57,11 +57,14 @@ MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
 MAP_DEFAULT_ZOOM_START = 12
 
 MAP_DRAW_LINE = True
+
 MAP_DRAW_MARK = True
+MAP_DRAW_MARK_COLOR_PDOP = True
+MAP_DRAW_MARK_COLOR_FIX_QUALITY = True
 
 SAMPLE_DURATION_IN_SECOND = 1
 
-DOP_THRESH_HOLD = 5
+DOP_THRESH_HOLD = 5.0
 
 
 class NmeaDecode:
@@ -104,10 +107,12 @@ class NmeaDecode:
         self.OutputFile = None
 
         self.Map = folium.Map(
-            location = MAP_DEFAULT_LOCATION,
-            zoom_start = MAP_DEFAULT_ZOOM_START
+            location=MAP_DEFAULT_LOCATION,
+            zoom_start=MAP_DEFAULT_ZOOM_START
         )
         self.Map.add_child(folium.LatLngPopup())
+
+        self.MarkColor = None
 
     def decode(self):
         if not os.path.exists(self.InputFileName):
@@ -324,6 +329,40 @@ class NmeaDecode:
         else:
             self.NavigateDataList.append(navigate_data)
 
+    def set_mark_color(self, navigate_data):
+        self.MarkColor = None
+
+        if navigate_data is None:
+            return
+
+        if MAP_DRAW_MARK_COLOR_FIX_QUALITY:
+            if navigate_data.FixQuality is None or len(navigate_data.FixQuality) == 0:
+                return
+
+            value = int(navigate_data.FixQuality)
+
+            if value == 0:
+                self.MarkColor = "gray"#remark = "Invalid"
+            elif value == 1:
+                self.MarkColor = "blue"#remark = "SPS"
+            elif value == 2:
+                self.MarkColor = "lightblue"#remark = "DGPS"
+            elif value == 3:
+                self.MarkColor = "lightgreen"#remark = "PPS"
+            elif value == 4:
+                self.MarkColor = "green"#remark = "RTK"
+            elif value == 5:
+                self.MarkColor = "darkgreen"#remark = "Float RTK"
+            elif value == 6:
+                self.MarkColor = "white"#remark = "Estimated"
+
+        if MAP_DRAW_MARK_COLOR_PDOP:
+            if navigate_data.PDOP is None or len(navigate_data.PDOP) == 0:
+                return
+
+            if float(navigate_data.PDOP) > DOP_THRESH_HOLD:
+                self.MarkColor = "red"
+
     def draw(self):
         print("\n")
         print("Prepare data to draw...")
@@ -339,17 +378,20 @@ class NmeaDecode:
             if navigate_data.LatitudeValue is None or navigate_data.LongitudeValue is None:
                 continue
 
+            print("navigate_data=" + navigate_data.to_string())
+
             location = [navigate_data.LatitudeValue, navigate_data.LongitudeValue]
             location_list.append(location)
 
             if MAP_DRAW_MARK:
-                if float(navigate_data.PDOP) > DOP_THRESH_HOLD:
-                    folium.Marker(location=location,
-                                  popup=navigate_data.to_string(),
-                                  icon=folium.Icon(color='red', icon='info-sign')).add_to(self.Map)
+                popup = navigate_data.to_string()
+
+                self.set_mark_color(navigate_data)
+
+                if self.MarkColor is not None:
+                    folium.Marker(location=location, popup=popup, icon=folium.Icon(color=self.MarkColor)).add_to(self.Map)
                 else:
-                    folium.Marker(location=location,
-                              popup=navigate_data.to_string()).add_to(self.Map)
+                    folium.Marker(location=location, popup=popup).add_to(self.Map)
 
         if MAP_DRAW_LINE:
             folium.PolyLine(locations=location_list).add_to(self.Map)
