@@ -62,7 +62,7 @@ MAP_DRAW_MARK = True
 MAP_DRAW_MARK_COLOR_PDOP = True
 MAP_DRAW_MARK_COLOR_FIX_QUALITY = True
 
-SAMPLE_DURATION_IN_SECOND = 1
+MAP_DRAW_MARK_DURATION_IN_SECOND = 10
 
 DOP_THRESH_HOLD = 5.0
 
@@ -313,21 +313,30 @@ class NmeaDecode:
         if navigate_data is None:
             return
 
-        date_time_now = navigate_data.get_local_date_time()
-        if date_time_now is None:
-            return
-
-        if self.LastDateTime is not None:
-            duration = date_time_now - self.LastDateTime
-            if duration.seconds < SAMPLE_DURATION_IN_SECOND:
-                return
-
-        self.LastDateTime = date_time_now
-
         if navigate_data.LatitudeValue is None or navigate_data.LongitudeValue is None:
             return
         else:
             self.NavigateDataList.append(navigate_data)
+
+    def check_mark_duration(self, navigate_data):
+        result = False
+
+        if navigate_data is None:
+            return result
+
+        date_time_now = navigate_data.get_local_date_time()
+        if date_time_now is None:
+            return result
+
+        if self.LastDateTime is not None:
+            duration = date_time_now - self.LastDateTime
+            if duration.seconds < MAP_DRAW_MARK_DURATION_IN_SECOND:
+                return result
+
+        result = True
+        self.LastDateTime = date_time_now
+
+        return result
 
     def set_mark_color(self, navigate_data):
         self.MarkColor = None
@@ -384,14 +393,15 @@ class NmeaDecode:
             location_list.append(location)
 
             if MAP_DRAW_MARK:
-                popup = navigate_data.to_string()
+                if self.check_mark_duration(navigate_data):
+                    popup = navigate_data.to_string()
 
-                self.set_mark_color(navigate_data)
+                    self.set_mark_color(navigate_data)
 
-                if self.MarkColor is not None:
-                    folium.Marker(location=location, popup=popup, icon=folium.Icon(color=self.MarkColor)).add_to(self.Map)
-                else:
-                    folium.Marker(location=location, popup=popup).add_to(self.Map)
+                    if self.MarkColor is not None:
+                        folium.Marker(location=location, popup=popup, icon=folium.Icon(color=self.MarkColor)).add_to(self.Map)
+                    else:
+                        folium.Marker(location=location, popup=popup).add_to(self.Map)
 
         if MAP_DRAW_LINE:
             folium.PolyLine(locations=location_list).add_to(self.Map)
