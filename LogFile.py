@@ -3,7 +3,7 @@ import os
 import sys
 from datetime import datetime
 
-FILE_NAME = "log.txt"
+FILE_NAME = "log20200402-19-20.txt"
 
 FILE_NAME_EXT_SORTED = ".sorted"
 
