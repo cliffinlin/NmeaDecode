@@ -1,30 +1,8 @@
 #!/usr/bin/env python
-# sample NMEA sentence:
-# $GNRMC,075414.000,A,4004.680961,N,11614.576639,E,0.031,0.00,240320,,E,A*08
-#
-# $GNVTG,0.00,T,,M,0.031,N,0.058,K,A*2C
-#
-# $GNGGA,075414.000,4004.680961,N,11614.576639,E,1,14,0.89,30.372,M,0,M,,*65
-#
-# $GPGSA,A,3,01,07,08,11,27,28,30,,,,,,1.51,0.89,1.22*05
-#
-# $BDGSA,A,3,01,03,04,07,08,10,13,,,,,,1.51,0.89,1.22*1C
-#
-# $GPGSV,3,1,09,01,45,166,44,07,64,246,46,08,55,042,45,11,77,113,43*7F
-#
-# $GPGSV,3,2,09,20,,,22,22,,,21,27,23,055,26,28,18,296,36*7B
-#
-# $GPGSV,3,3,09,30,44,299,43*46
-#
-# $BDGSV,3,1,10,01,38,144,39,02,31,223,00,03,43,188,41,04,26,123,39*63
-#
-# $BDGSV,3,2,10,05,14,246,00,07,76,070,41,08,42,172,40,09,10,210,00*69
-#
-# $BDGSV,3,3,10,10,71,319,41,13,21,189,41*64
-#
-# $GNGLL,4004.680961,N,11614.576639,E,075414.000,A,A*4F
 
 import os
+import sys
+
 import folium
 
 from BDGGA import BDGGA
@@ -48,10 +26,9 @@ from GPVTG import GPVTG
 from NavigateData import NavigateData
 from LogFile import LogFile
 
-FILE_NAME_LOG = "log.txt"
-FILE_NAME_LOG_SORTED = "sorted.txt"
-FILE_NAME_OUTPUT = "nmea.out"
-FILE_NAME_MAP_VIEW = 'index.html'
+
+FILE_NAME_EXT_OUTPUT = ".out"
+FILE_NAME_EXT_HTML = '.html'
 
 MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
 MAP_DEFAULT_ZOOM_START = 12
@@ -100,10 +77,12 @@ class NmeaDecode:
 
         self.LastDateTime = None
 
-        self.InputFileName = FILE_NAME_LOG_SORTED
-        self.InputFile = None
+        self.LogFileName = None
+        self.LogFileNameSorted = None
+        self.FileNameOut = None
+        self.FileNameHtml = None
 
-        self.OutputFileName = FILE_NAME_OUTPUT
+        self.InputFile = None
         self.OutputFile = None
 
         self.Map = folium.Map(
@@ -114,14 +93,21 @@ class NmeaDecode:
 
         self.MarkColor = None
 
+    def set_file_name(self, log_file_name, log_file_name_sorted):
+        self.LogFileName = log_file_name
+        self.LogFileNameSorted = log_file_name_sorted
+
+        self.FileNameOut = self.LogFileName + FILE_NAME_EXT_OUTPUT
+        self.FileNameHtml = self.LogFileName + FILE_NAME_EXT_HTML
+
     def decode(self):
-        if not os.path.exists(self.InputFileName):
-            print(self.InputFileName, "file not found!")
-            return
+        if not os.path.exists(self.LogFileNameSorted):
+            print(self.LogFileNameSorted, "file not found!")
+            sys.exit()
 
-        self.OutputFile = open(self.OutputFileName, "w")
+        self.OutputFile = open(self.FileNameOut, "w")
 
-        with open(self.InputFileName) as self.InputFile:
+        with open(self.LogFileNameSorted) as self.InputFile:
             navigate_data = NavigateData()
 
             for line in self.InputFile:
@@ -193,6 +179,8 @@ class NmeaDecode:
                     navigate_data.set_altitude(self.GPGGA.Altitude)
                     navigate_data.set_fix_quality(self.GPGGA.FixQuality)
                     navigate_data.set_tracked_number(self.GPGGA.TrackedNumber)
+                    navigate_data.set_differential_data_age(self.GPGGA.DifferentialDataAge)
+                    navigate_data.set_reference_station_id(self.GPGGA.ReferenceStationID)
 
                 elif "$BDGGA" in line:
                     self.BDGGA.decode(line)
@@ -205,6 +193,8 @@ class NmeaDecode:
                     navigate_data.set_altitude(self.BDGGA.Altitude)
                     navigate_data.set_fix_quality(self.BDGGA.FixQuality)
                     navigate_data.set_tracked_number(self.BDGGA.TrackedNumber)
+                    navigate_data.set_differential_data_age(self.BDGGA.DifferentialDataAge)
+                    navigate_data.set_reference_station_id(self.BDGGA.ReferenceStationID)
 
                 elif "$GNGGA" in line:
                     self.GNGGA.decode(line)
@@ -217,6 +207,8 @@ class NmeaDecode:
                     navigate_data.set_altitude(self.GNGGA.Altitude)
                     navigate_data.set_fix_quality(self.GNGGA.FixQuality)
                     navigate_data.set_tracked_number(self.GNGGA.TrackedNumber)
+                    navigate_data.set_differential_data_age(self.GNGGA.DifferentialDataAge)
+                    navigate_data.set_reference_station_id(self.GNGGA.ReferenceStationID)
 
                 elif "$GPGSA" in line:
                     self.GPGSA.decode(line)
@@ -355,13 +347,13 @@ class NmeaDecode:
             elif value == 1:
                 self.MarkColor = "blue"#remark = "SPS"
             elif value == 2:
-                self.MarkColor = "lightblue"#remark = "DGPS"
+                self.MarkColor = "lightgreen"#remark = "DGPS"
             elif value == 3:
                 self.MarkColor = "lightgreen"#remark = "PPS"
             elif value == 4:
-                self.MarkColor = "green"#remark = "RTK"
+                self.MarkColor = "darkgreen"#remark = "RTK FIX"
             elif value == 5:
-                self.MarkColor = "darkgreen"#remark = "Float RTK"
+                self.MarkColor = "green"#remark = "RTK Float"
             elif value == 6:
                 self.MarkColor = "white"#remark = "Estimated"
 
@@ -387,7 +379,7 @@ class NmeaDecode:
             if navigate_data.LatitudeValue is None or navigate_data.LongitudeValue is None:
                 continue
 
-            print("navigate_data=" + navigate_data.to_string())
+            # print("navigate_data=" + navigate_data.to_string())
 
             location = [navigate_data.LatitudeValue, navigate_data.LongitudeValue]
             location_list.append(location)
@@ -407,15 +399,16 @@ class NmeaDecode:
             folium.PolyLine(locations=location_list).add_to(self.Map)
 
         print("Save map data ...")
-        self.Map.save(FILE_NAME_MAP_VIEW)
-        print("Map saved in " + FILE_NAME_MAP_VIEW)
+        self.Map.save(self.FileNameHtml)
+        print("Map saved in " + self.FileNameHtml)
 
 
 def main():
     log_file = LogFile()
-    log_file.sort(FILE_NAME_LOG, FILE_NAME_LOG_SORTED)
+    log_file.sort()
 
     nmea_decode = NmeaDecode()
+    nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
     nmea_decode.decode()
     nmea_decode.draw()
     return 0

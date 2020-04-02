@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 import os
+import sys
 from datetime import datetime
+
+FILE_NAME = "log.txt"
+
+FILE_NAME_EXT_SORTED = ".sorted"
 
 KEY_WORD_MAIN_LOG = "main_log"
 
 
 class LogFile:
     def __init__(self):
+        self.FileName = FILE_NAME
+        self.FileNameSorted = self.FileName + FILE_NAME_EXT_SORTED
+
         self.InputFile = None
         self.OutputFile = None
-        self.OutputFileName = ""
 
         self.Date = None
         self.Time = None
@@ -65,13 +72,13 @@ class LogFile:
 
         return diff_seconds
 
-    def sort(self, input_file_name, output_file_name):
-        if not os.path.exists(input_file_name):
-            print(input_file_name, "file not found!")
-            return
+    def sort(self):
+        if not os.path.exists(self.FileName):
+            print(self.FileName, "file not found!")
+            sys.exit()
 
         line_list = []
-        with open(input_file_name) as self.InputFile:
+        with open(self.FileName) as self.InputFile:
             for line in self.InputFile:
                 self.Date = None
                 self.Time = None
@@ -82,7 +89,7 @@ class LogFile:
 
                 line_list.append(line)
 
-        self.OutputFile = open(output_file_name, "w")
+        self.OutputFile = open(self.FileNameSorted, "w")
 
         if len(line_list) > 0:
             print("Sorting line list, waiting...")

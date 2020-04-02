@@ -228,6 +228,12 @@ class NmeaSentence:
     def set_fix_type(self, fix_type):
         self.FixType = fix_type
 
+    def set_differential_data_age(self, differential_data_age):
+        self.DifferentialDataAge = differential_data_age
+
+    def set_reference_station_id(self, reference_station_id):
+        self.ReferenceStationID = reference_station_id
+
     def set_satellite_list(self, satellite_list):
         if satellite_list is None:
             return
@@ -674,7 +680,7 @@ class NmeaSentence:
         if self.DifferentialDataAge is None or len(self.DifferentialDataAge) == 0:
             return result
 
-        result += "DifferentialDataAge="
+        result += "DataAge="
         result += self.DifferentialDataAge
         result += self.Separate
 
@@ -686,7 +692,7 @@ class NmeaSentence:
         if self.ReferenceStationID is None or len(self.ReferenceStationID) == 0:
             return result
 
-        result += "ReferenceStationID="
+        result += "StationID="
         result += self.ReferenceStationID
         result += self.Separate
 

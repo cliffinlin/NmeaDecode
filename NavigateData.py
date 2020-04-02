@@ -167,6 +167,9 @@ class NavigateData(NmeaSentence):
         result += self.fix_quality_to_string()
         result += self.fix_type_to_string()
 
+        result += self.differential_data_age_to_string()
+        result += self.reference_station_id_to_string()
+
         result += self.pdop_to_string()
         result += self.hdop_to_string()
         result += self.vdop_to_string()
