@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import folium
 
-DOP_THRESH_HOLD = 5.0
-FILE_NAME_EXT_HTML = '.html'
+from BaseMap import BaseMap
 
-MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
-MAP_DEFAULT_ZOOM_START = 12
+DOP_THRESH_HOLD = 5.0
+# FILE_NAME_EXT_HTML = '.html'
+
+# MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
+# MAP_DEFAULT_ZOOM_START = 12
 
 MAP_DRAW_LINE = True
 
@@ -16,27 +18,24 @@ MAP_DRAW_MARK_COLOR_FIX_QUALITY = True
 MAP_DRAW_MARK_DURATION_IN_SECOND = 10
 
 
-class FoliumMap:
+class FoliumMap(BaseMap):
     def __init__(self):
-        self.FileName = None
+        BaseMap.__init__(self)
 
         self.LastDateTime = None
 
-        self.NavigateDataList = []
-
         self.Map = folium.Map(
-            location=MAP_DEFAULT_LOCATION,
-            zoom_start=MAP_DEFAULT_ZOOM_START
+            location=self.CenterLocation,
+            zoom_start=self.Zoom,
+            # tiles='http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}', # 高德街道图
+            # tiles='http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', # 高德卫星图
+            tiles='https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', # google 卫星图
+            # tiles='https://mt.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', # google 地图
+            attr='default'
         )
         self.Map.add_child(folium.LatLngPopup())
 
         self.MarkColor = None
-
-    def set_file_name(self, file_name):
-        self.FileName = file_name + FILE_NAME_EXT_HTML
-
-    def set_navigate_data_list(self, navigate_data_list):
-        self.NavigateDataList = navigate_data_list
 
     def check_mark_duration(self, navigate_data):
         result = False

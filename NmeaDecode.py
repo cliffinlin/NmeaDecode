@@ -12,6 +12,7 @@ from BDGSV import BDGSV
 from BDRMC import BDRMC
 from BDVTG import BDVTG
 from FoliumMap import FoliumMap
+from GMPlotMap import GMPlotMap
 from GNGGA import GNGGA
 from GNGLL import GNGLL
 from GNGSA import GNGSA
@@ -297,6 +298,11 @@ def main():
     folium_map.set_file_name(log_file.FileName)
     folium_map.set_navigate_data_list(nmea_decode.NavigateDataList)
     folium_map.draw()
+
+    # gmplot_map = GMPlotMap()
+    # gmplot_map.set_file_name(log_file.FileName)
+    # gmplot_map.set_navigate_data_list(nmea_decode.NavigateDataList)
+    # gmplot_map.draw()
 
     return 0
 
