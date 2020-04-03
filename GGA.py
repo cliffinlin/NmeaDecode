@@ -54,8 +54,6 @@ class GGA(NmeaSentence):
         NmeaSentence.__init__(self)
 
     def decode(self, line):
-        self.__init__()
-
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
