@@ -4,7 +4,7 @@ import folium
 import Transform
 from BaseMap import BaseMap
 
-GOOGLE_MAP = False
+GOOGLE_MAP = True
 
 DOP_THRESH_HOLD = 5.0
 

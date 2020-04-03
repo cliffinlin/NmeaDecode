@@ -3,8 +3,6 @@ import os
 import sys
 from datetime import datetime
 
-FILE_NAME = "log.txt"
-
 FILE_NAME_EXT_SORTED = ".sorted"
 
 KEY_WORD_MAIN_LOG = "main_log"
@@ -12,14 +10,18 @@ KEY_WORD_MAIN_LOG = "main_log"
 
 class LogFile:
     def __init__(self):
-        self.FileName = FILE_NAME
-        self.FileNameSorted = self.FileName + FILE_NAME_EXT_SORTED
+        self.FileName = None
+        self.FileNameSorted = None
 
         self.InputFile = None
         self.OutputFile = None
 
         self.Date = None
         self.Time = None
+
+    def set_file_name(self, file_name):
+        self.FileName = file_name
+        self.FileNameSorted = self.FileName + FILE_NAME_EXT_SORTED
 
     def parse_date_time(self, line):
         self.Date = None

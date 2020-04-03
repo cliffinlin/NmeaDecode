@@ -36,7 +36,6 @@ class NmeaSentence:
     def __init__(self):
         self.Separate = SEPARATE_STRING
 
-        # self.LastSentence = ""
         self.Sentence = ""
         self.DataType = ""
         self.Checksum = ""
@@ -94,9 +93,7 @@ class NmeaSentence:
         self.ReferenceStationID = ""
 
     def reset(self):
-        # last_sentence = self.LastSentence
         self.__init__()
-        # self.LastSentence = last_sentence
 
     def decode(self, line):
         self.reset()
@@ -121,10 +118,6 @@ class NmeaSentence:
         if len(list_a) < 2:
             return
 
-        # if nmea_line in self.LastSentence:
-            # print("Same sentence found, " + nmea_line +  " " + self.LastSentence)
-            # return
-
         self.Checksum = list_a[1]
 
         list_b = list_a[0].split(",")
@@ -138,7 +131,6 @@ class NmeaSentence:
         self.Data = list_b[1:]
 
         self.Sentence = nmea_line
-        # self.LastSentence = self.Sentence
 
     def decode_date(self):
         if self.Date is None:

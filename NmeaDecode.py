@@ -3,16 +3,12 @@
 import os
 import sys
 
-import folium
-
 from BDGGA import BDGGA
 from BDGLL import BDGLL
 from BDGSA import BDGSA
 from BDGSV import BDGSV
 from BDRMC import BDRMC
 from BDVTG import BDVTG
-from FoliumMap import FoliumMap
-#from GMPlotMap import GMPlotMap
 from GNGGA import GNGGA
 from GNGLL import GNGLL
 from GNGSA import GNGSA
@@ -25,8 +21,8 @@ from GPGSA import GPGSA
 from GPGSV import GPGSV
 from GPRMC import GPRMC
 from GPVTG import GPVTG
+
 from NavigateData import NavigateData
-from LogFile import LogFile
 
 FILE_NAME_EXT_OUTPUT = ".out"
 
@@ -284,28 +280,3 @@ class NmeaDecode:
             return
         else:
             self.NavigateDataList.append(navigate_data)
-
-
-def main():
-    log_file = LogFile()
-    log_file.sort()
-
-    nmea_decode = NmeaDecode()
-    nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
-    nmea_decode.decode()
-
-    folium_map = FoliumMap()
-    folium_map.set_file_name(log_file.FileName)
-    folium_map.set_navigate_data_list(nmea_decode.NavigateDataList)
-    folium_map.draw()
-
-    # gmplot_map = GMPlotMap()
-    # gmplot_map.set_file_name(log_file.FileName)
-    # gmplot_map.set_navigate_data_list(nmea_decode.NavigateDataList)
-    # gmplot_map.draw()
-
-    return 0
-
-
-if __name__ == "__main__":
-    main()
