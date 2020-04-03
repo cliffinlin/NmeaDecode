@@ -28,6 +28,7 @@ def main():
     folium_map.set_file_name(log_file.FileName)
     folium_map.set_navigate_data_list(nmea_decode.NavigateDataList)
     folium_map.draw()
+
     webbrowser.open(folium_map.FileName)
 
     # gmplot_map = GMPlotMap()
