@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import branca
 import folium
 
 import Transform
@@ -79,11 +80,11 @@ class FoliumMap(BaseMap):
             elif value == 1:
                 self.MarkColor = "blue"  # remark = "SPS"
             elif value == 2:
-                self.MarkColor = "lightgreen"  # remark = "DGPS"
+                self.MarkColor = "lightgreen"  # remark = "Differential"
             elif value == 3:
-                self.MarkColor = "lightgreen"  # remark = "PPS"
+                self.MarkColor = "yellow"  # remark = "PPS"
             elif value == 4:
-                self.MarkColor = "darkgreen"  # remark = "RTK FIX"
+                self.MarkColor = "darkgreen"  # remark = "RTK Fixed"
             elif value == 5:
                 self.MarkColor = "green"  # remark = "RTK Float"
             elif value == 6:
@@ -136,6 +137,14 @@ class FoliumMap(BaseMap):
 
         if MAP_DRAW_LINE:
             folium.PolyLine(locations=location_list).add_to(self.Map)
+
+        colormap = branca.colormap.StepColormap(
+            [(55, 168, 218), (187, 249, 112), (255, 255, 0), (113, 130, 36), (113, 174, 38), (255, 255, 255)],
+            vmin=1, vmax=7,
+            index=[1, 2, 3, 4, 5, 6, 7],
+            caption='Fix Quality: 1=SPS, 2=Differential, 3=PPS, 4=RTK Fixed, 5=RTK Float, 6=Estimated'
+        )
+        colormap.add_to(self.Map)
 
         print("Save map data ...")
         self.Map.save(self.FileName)
