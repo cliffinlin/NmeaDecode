@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import folium
 
+import Transform
 from BaseMap import BaseMap
 
-DOP_THRESH_HOLD = 5.0
-# FILE_NAME_EXT_HTML = '.html'
+GOOGLE_MAP = False
 
-# MAP_DEFAULT_LOCATION = [39.9032, 116.3915]
-# MAP_DEFAULT_ZOOM_START = 12
+DOP_THRESH_HOLD = 5.0
 
 MAP_DRAW_LINE = True
 
@@ -24,12 +23,18 @@ class FoliumMap(BaseMap):
 
         self.LastDateTime = None
 
+        if GOOGLE_MAP:
+            tiles = 'https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' # google 卫星图
+        else:
+            tiles = 'http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'  # 高德卫星图
+
         self.Map = folium.Map(
             location=self.CenterLocation,
             zoom_start=self.Zoom,
+            tiles = tiles,
             # tiles='http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}', # 高德街道图
             # tiles='http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', # 高德卫星图
-            tiles='https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', # google 卫星图
+            # tiles='https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', # google 卫星图
             # tiles='https://mt.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', # google 地图
             attr='default'
         )
@@ -108,7 +113,13 @@ class FoliumMap(BaseMap):
 
             # print("navigate_data=" + navigate_data.to_string())
 
-            location = [navigate_data.LatitudeValue, navigate_data.LongitudeValue]
+            mglng, mglat = Transform.wgs84_to_gcj02(navigate_data.LongitudeValue, navigate_data.LatitudeValue)
+
+            if GOOGLE_MAP:
+                location = [navigate_data.LatitudeValue, navigate_data.LongitudeValue]
+            else:
+                location = [mglat, mglng]
+
             location_list.append(location)
 
             if MAP_DRAW_MARK:

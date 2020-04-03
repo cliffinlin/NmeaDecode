@@ -12,7 +12,7 @@ from BDGSV import BDGSV
 from BDRMC import BDRMC
 from BDVTG import BDVTG
 from FoliumMap import FoliumMap
-# from GMPlotMap import GMPlotMap
+#from GMPlotMap import GMPlotMap
 from GNGGA import GNGGA
 from GNGLL import GNGLL
 from GNGSA import GNGSA

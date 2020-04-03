@@ -2,7 +2,7 @@
 
 import gmplot
 
-import Coordtransform
+import Transform
 from BaseMap import BaseMap
 
 MAP_DRAW_LINE = True
@@ -45,7 +45,7 @@ class GMPlotMap(BaseMap):
 
             # location = [navigate_data.LatitudeValue, navigate_data.LongitudeValue]
             # location_list.append(location)
-            gcj_lng, gcj_lat = Coordtransform.wgs84_to_gcj02(navigate_data.LongitudeValue, navigate_data.LatitudeValue)
+            gcj_lng, gcj_lat = Transform.wgs84_to_gcj02(navigate_data.LongitudeValue, navigate_data.LatitudeValue)
             # latitude_list.append(navigate_data.LatitudeValue)
             # longitude_list.append(navigate_data.LongitudeValue)
             latitude_list.append(gcj_lat)
