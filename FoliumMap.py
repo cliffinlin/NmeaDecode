@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import datetime
+
 import branca
 import folium
 
@@ -9,30 +11,40 @@ GOOGLE_MAP = True
 
 DOP_THRESH_HOLD = 5.0
 
-MAP_DRAW_LINE = True
-
 MAP_DRAW_MARK = True
 MAP_DRAW_MARK_COLOR_PDOP = True
 MAP_DRAW_MARK_COLOR_FIX_QUALITY = True
 
 MAP_DRAW_MARK_DURATION_IN_SECOND = 10
 
+MAP_DRAW_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+MAP_DRAW_DATE_TIME_FROM = None#"2020-04-07 08:31:30"
+MAP_DRAW_DATE_TIME_TO = None#"2020-04-07 08:47:30"
+
 
 class FoliumMap(BaseMap):
     def __init__(self):
         BaseMap.__init__(self)
 
+        self.date_time_from = None
+        if MAP_DRAW_DATE_TIME_FROM is not None:
+            self.date_time_from = datetime.datetime.strptime(MAP_DRAW_DATE_TIME_FROM, MAP_DRAW_DATE_TIME_FORMAT)
+
+        self.date_time_to = None
+        if MAP_DRAW_DATE_TIME_TO is not None:
+            self.date_time_to = datetime.datetime.strptime(MAP_DRAW_DATE_TIME_TO, MAP_DRAW_DATE_TIME_FORMAT)
+
         self.LastDateTime = None
 
         if GOOGLE_MAP:
-            tiles = 'https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}' # google 卫星图
+            tiles = 'https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'  # google 卫星图
         else:
             tiles = 'http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'  # 高德卫星图
 
         self.Map = folium.Map(
             location=self.CenterLocation,
             zoom_start=self.Zoom,
-            tiles = tiles,
+            tiles=tiles,
             # tiles='http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}', # 高德街道图
             # tiles='http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', # 高德卫星图
             # tiles='https://mt.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', # google 卫星图
@@ -43,13 +55,30 @@ class FoliumMap(BaseMap):
 
         self.MarkColor = None
 
-    def check_mark_duration(self, navigate_data):
+    def check_date_time(self, date_time_now):
         result = False
 
-        if navigate_data is None:
+        if date_time_now is None:
             return result
 
-        date_time_now = navigate_data.get_local_date_time()
+        if self.date_time_from is not None:
+            if date_time_now < self.date_time_from:
+                return result
+
+        if self.date_time_to is not None:
+            if date_time_now > self.date_time_to:
+                return result
+
+        result = True
+
+        return result
+
+    def need_map_draw_marker(self, date_time_now):
+        result = False
+
+        if not MAP_DRAW_MARK:
+            return result
+
         if date_time_now is None:
             return result
 
@@ -121,22 +150,27 @@ class FoliumMap(BaseMap):
             else:
                 location = [mglat, mglng]
 
+            date_time_now = navigate_data.get_local_date_time()
+            if date_time_now is None:
+                continue
+
+            if not self.check_date_time(date_time_now):
+                continue
+
             location_list.append(location)
 
-            if MAP_DRAW_MARK:
-                if self.check_mark_duration(navigate_data):
-                    popup = navigate_data.to_string()
+            if self.need_map_draw_marker(date_time_now):
+                popup = navigate_data.to_string()
 
-                    self.set_mark_color(navigate_data)
+                self.set_mark_color(navigate_data)
 
-                    if self.MarkColor is not None:
-                        folium.Marker(location=location, popup=popup, icon=folium.Icon(color=self.MarkColor)).add_to(
-                            self.Map)
-                    else:
-                        folium.Marker(location=location, popup=popup).add_to(self.Map)
+                if self.MarkColor is not None:
+                    folium.Marker(location=location, popup=popup, icon=folium.Icon(color=self.MarkColor)).add_to(
+                        self.Map)
+                else:
+                    folium.Marker(location=location, popup=popup).add_to(self.Map)
 
-        if MAP_DRAW_LINE:
-            folium.PolyLine(locations=location_list).add_to(self.Map)
+        folium.PolyLine(locations=location_list).add_to(self.Map)
 
         colormap = branca.colormap.StepColormap(
             [(55, 168, 218), (187, 249, 112), (255, 255, 0), (113, 130, 36), (113, 174, 38), (255, 255, 255)],

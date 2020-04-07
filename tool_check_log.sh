@@ -8,7 +8,7 @@ fi
 
 base_dir=$1
 
-grep -rn "RMC\|VTG\|GGA\|GSA\|GSV\|GLL" $base_dir | tee $base_dir.log.txt
+grep -anr "RMC\|VTG\|GGA\|GSA\|GSV\|GLL" $base_dir | tee $base_dir.txt
 
 
 #$GNRMC,075414.000,A,4004.680961,N,11614.576639,E,0.031,0.00,240320,,E,A*08

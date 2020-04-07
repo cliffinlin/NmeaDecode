@@ -80,7 +80,7 @@ class LogFile:
             sys.exit()
 
         line_list = []
-        with open(self.FileName) as self.InputFile:
+        with open(self.FileName, encoding='latin1') as self.InputFile:
             for line in self.InputFile:
                 self.Date = None
                 self.Time = None
