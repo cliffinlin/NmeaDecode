@@ -2,6 +2,7 @@
 import os
 import sys
 from datetime import datetime
+import easygui
 
 FILE_NAME_EXT_SORTED = ".sorted"
 
@@ -19,7 +20,15 @@ class LogFile:
         self.Date = None
         self.Time = None
 
-    def set_file_name(self, file_name):
+        self.select_file()
+        self.sort()
+
+    def select_file(self):
+        file_name = easygui.fileopenbox(msg="Log File", title="Open", default='*.txt')
+        if file_name is None:
+            print("No file selected.")
+            return
+
         self.FileName = file_name
         self.FileNameSorted = self.FileName + FILE_NAME_EXT_SORTED
 
@@ -75,6 +84,9 @@ class LogFile:
         return diff_seconds
 
     def sort(self):
+        if self.FileName is None:
+            return
+
         if not os.path.exists(self.FileName):
             print(self.FileName, "file not found!")
             sys.exit()

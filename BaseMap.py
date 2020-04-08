@@ -13,10 +13,5 @@ class BaseMap:
 
         self.FileName = None
 
-        self.NavigateDataList = []
-
     def set_file_name(self, file_name):
         self.FileName = file_name + FILE_NAME_EXT_HTML
-
-    def set_navigate_data_list(self, navigate_data_list):
-        self.NavigateDataList = navigate_data_list

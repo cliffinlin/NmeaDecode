@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-
 import sys
 import webbrowser
-
-import easygui
 
 from FoliumMap import FoliumMap
 from LogFile import LogFile
@@ -11,23 +8,27 @@ from NmeaDecode import NmeaDecode
 
 
 def main():
-    file_name = easygui.fileopenbox(msg="Log File", title="Open", default='*.txt')
-    if file_name is None:
-        print("Please select a file.")
-        sys.exit()
+    folium_map = FoliumMap()
 
     log_file = LogFile()
-    log_file.set_file_name(file_name)
-    log_file.sort()
+    if log_file.FileName is None:
+        sys.exit()
+
+    folium_map.set_file_name(log_file.FileName)
 
     nmea_decode = NmeaDecode()
     nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
     nmea_decode.decode()
+    folium_map.add_navigate_data_list(nmea_decode.NavigateDataList)
 
-    folium_map = FoliumMap()
-    folium_map.set_file_name(log_file.FileName)
-    folium_map.set_navigate_data_list(nmea_decode.NavigateDataList)
-    folium_map.draw()
+    log_file = LogFile()
+    if log_file.FileName is not None:
+        nmea_decode = NmeaDecode()
+        nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
+        nmea_decode.decode()
+        folium_map.add_navigate_data_list(nmea_decode.NavigateDataList, color="red")
+
+    folium_map.save()
 
     webbrowser.open(folium_map.FileName)
 
