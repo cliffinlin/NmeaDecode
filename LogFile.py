@@ -4,13 +4,19 @@ import sys
 from datetime import datetime
 import easygui
 
+DEFAULT_ENCODING = "latin1"
+
+FILE_NAME_EXT = ".txt"
 FILE_NAME_EXT_SORTED = ".sorted"
 
 KEY_WORD_MAIN_LOG = "main_log"
+KEY_WORD_NMEA_DATA_TYPE = ["RMC", "VTG", "GGA", "GSA", "GSV", "GLL"]
 
 
 class LogFile:
     def __init__(self):
+        self.NormPath = None
+
         self.FileName = None
         self.FileNameSorted = None
 
@@ -20,8 +26,21 @@ class LogFile:
         self.Date = None
         self.Time = None
 
-        self.select_file()
-        self.sort()
+        self.KeyWords = KEY_WORD_NMEA_DATA_TYPE
+
+        self.select_dir()
+        self.search_nmea()
+        self.sort_line_list()
+
+    def select_dir(self):
+        normpath = easygui.diropenbox(msg="Log Dir", title="Select", default='~/Downloads')
+        if normpath is None:
+            print("No dir selected.")
+            return
+
+        self.NormPath = normpath
+        self.FileName = self.NormPath + FILE_NAME_EXT
+        self.FileNameSorted = self.NormPath + FILE_NAME_EXT_SORTED
 
     def select_file(self):
         file_name = easygui.fileopenbox(msg="Log File", title="Open", default='*.txt')
@@ -83,7 +102,7 @@ class LogFile:
 
         return diff_seconds
 
-    def sort(self):
+    def sort_line_list(self):
         if self.FileName is None:
             return
 
@@ -92,7 +111,8 @@ class LogFile:
             sys.exit()
 
         line_list = []
-        with open(self.FileName, encoding='latin1') as self.InputFile:
+        line_list_sorted = []
+        with open(self.FileName, encoding=DEFAULT_ENCODING) as self.InputFile:
             for line in self.InputFile:
                 self.Date = None
                 self.Time = None
@@ -107,11 +127,44 @@ class LogFile:
 
         if len(line_list) > 0:
             print("Sorting line list, waiting...")
-            sorted_line_list = sorted(line_list, key=self.key_function)
+            line_list_sorted = sorted(line_list, key=self.key_function)
 
         if self.OutputFile is not None:
-            for line in sorted_line_list:
+            for line in line_list_sorted:
                 self.OutputFile.write(line)
+
+        if self.OutputFile is not None:
+            self.OutputFile.close()
+
+    def search_nmea(self):
+        if self.FileName is None:
+            return
+
+        self.OutputFile = open(self.FileName, "w")
+
+        root_dir = self.NormPath
+
+        for root, dirs, files in os.walk(root_dir, onerror=None):
+            for filename in files:
+                file_path = os.path.join(root, filename)
+
+                try:
+                    with open(file_path, "rb") as f:
+                        for i, line in enumerate(f):
+                            try:
+                                line = line.decode(DEFAULT_ENCODING)
+                            except ValueError:
+                                continue
+
+                            if any(key_word in line for key_word in self.KeyWords):
+                                output_line = file_path + ":" + str(i + 1) + ":" + line
+
+                                print(output_line)
+
+                                if self.OutputFile is not None:
+                                    self.OutputFile.write(output_line)
+                except (IOError, OSError):
+                    pass
 
         if self.OutputFile is not None:
             self.OutputFile.close()
