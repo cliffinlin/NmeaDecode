@@ -78,7 +78,7 @@ class LogFile:
             part_list = line.split(":")
             if len(part_list) > 2:
                 self.Date = part_list[-1]
-                self.parse_year(part_list[0])
+                self.parse_year(part_list[-3])
 
     def parse_year(self, line):
         if line is None:
