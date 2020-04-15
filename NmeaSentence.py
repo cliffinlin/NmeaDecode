@@ -51,6 +51,9 @@ class NmeaSentence:
         self.Minute = None
         self.Second = None
 
+        self.UTCDateTime = None
+        self.LocalDateTime = None
+
         self.Latitude = ""
         self.LatitudeDirection = ""
         self.LatitudeValue = None
@@ -251,41 +254,29 @@ class NmeaSentence:
     def set_vdop(self, vdop):
         self.VDOP = vdop
 
-    def get_utc_date_time(self):
-        result = None
-
+    def setup_utc_date_time(self):
         if self.Year is None or self.Month is None or self.Day is None or self.Hour is None or self.Minute is None or self.Second is None:
-            return result
+            return
 
-        result = datetime.datetime.strptime(
+        self.UTCDateTime = datetime.datetime.strptime(
             self.Year + "-" + self.Month + "-" + self.Day + " " + self.Hour + ":" + self.Minute + ":" + self.Second,
             DEFAULT_DATE_TIME_FORMAT)
 
-        return result
+    def setup_local_date_time(self):
+        self.setup_utc_date_time()
+        if self.UTCDateTime is None:
+            return
 
-    def get_local_date_time(self):
-        result = None
-
-        utc_date_time = self.get_utc_date_time()
-
-        if utc_date_time is None:
-            return result
-
-        result = utc_date_time + datetime.timedelta(hours=DEFAULT_TIME_ZONE)
-
-        return result
+        self.LocalDateTime = self.UTCDateTime + datetime.timedelta(hours=DEFAULT_TIME_ZONE)
 
     def utc_date_time_to_string(self):
         result = ""
 
-        if self.Year is None or self.Month is None or self.Day is None or self.Hour is None or self.Minute is None or self.Second is None:
+        self.setup_utc_date_time()
+        if self.UTCDateTime is None:
             return result
 
-        utc_date_time = self.get_utc_date_time()
-        if utc_date_time is None:
-            return result
-
-        result += utc_date_time.strftime(DEFAULT_DATE_TIME_FORMAT)
+        result += self.UTCDateTime.strftime(DEFAULT_DATE_TIME_FORMAT)
         result += self.Separate
 
         return result
@@ -293,11 +284,12 @@ class NmeaSentence:
     def local_date_time_to_string(self):
         result = ""
 
-        local_date_time = self.get_local_date_time()
-        if local_date_time is None:
+        self.setup_local_date_time()
+
+        if self.LocalDateTime is None:
             return result
 
-        result += local_date_time.strftime(DEFAULT_DATE_TIME_FORMAT)
+        result += self.LocalDateTime.strftime(DEFAULT_DATE_TIME_FORMAT)
         result += self.Separate
 
         return result

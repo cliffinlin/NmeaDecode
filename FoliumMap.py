@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import datetime
-
 import branca
 import folium
 
@@ -17,10 +15,6 @@ MAP_DRAW_MARK_COLOR_FIX_QUALITY = True
 
 MAP_DRAW_MARK_DURATION_IN_SECOND = 10
 
-MAP_DRAW_DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-MAP_DRAW_DATE_TIME_FROM = None  # "2020-04-07 08:31:30"
-MAP_DRAW_DATE_TIME_TO = None  # "2020-04-07 08:47:30"
-
 
 class FoliumMap(BaseMap):
     def __init__(self):
@@ -30,15 +24,11 @@ class FoliumMap(BaseMap):
         self.ColorMap = None
         self.MarkColor = None
 
-        self.DrawMark = False
-
-        self.DateTimeFrom = None
-        self.DateTimeTo = None
         self.LastDateTime = None
 
+        self.LocationList = []
+
         self.setup_map()
-        self.setup_date_time_from()
-        self.setup_date_time_to()
 
     def setup_map(self):
         if GOOGLE_MAP:
@@ -67,48 +57,26 @@ class FoliumMap(BaseMap):
         self.Map.add_child(self.ColorMap)
         self.Map.add_child(folium.LatLngPopup())
 
-    def setup_date_time_from(self):
-        if MAP_DRAW_DATE_TIME_FROM is not None:
-            self.DateTimeFrom = datetime.datetime.strptime(MAP_DRAW_DATE_TIME_FROM, MAP_DRAW_DATE_TIME_FORMAT)
-
-    def setup_date_time_to(self):
-        if MAP_DRAW_DATE_TIME_TO is not None:
-            self.DateTimeTo = datetime.datetime.strptime(MAP_DRAW_DATE_TIME_TO, MAP_DRAW_DATE_TIME_FORMAT)
-
-    def check_date_time(self, date_time_now):
-        result = False
-
-        if date_time_now is None:
-            return result
-
-        if self.DateTimeFrom is not None:
-            if date_time_now < self.DateTimeFrom:
-                return result
-
-        if self.DateTimeTo is not None:
-            if date_time_now > self.DateTimeTo:
-                return result
-
-        result = True
-
-        return result
-
-    def need_map_draw_marker(self, date_time_now):
+    def need_map_draw_marker(self, navigate_data):
         result = False
 
         if not MAP_DRAW_MARK:
             return result
 
-        if date_time_now is None:
+        if navigate_data is None:
+            return result
+
+        navigate_data.setup_local_date_time()
+        if navigate_data.LocalDateTime is None:
             return result
 
         if self.LastDateTime is not None:
-            duration = date_time_now - self.LastDateTime
+            duration = navigate_data.LocalDateTime - self.LastDateTime
             if duration.seconds < MAP_DRAW_MARK_DURATION_IN_SECOND:
                 return result
 
         result = True
-        self.LastDateTime = date_time_now
+        self.LastDateTime = navigate_data.LocalDateTime
 
         return result
 
@@ -153,7 +121,7 @@ class FoliumMap(BaseMap):
             print("No data to draw!")
             return
 
-        location_list = []
+        self.LocationList = []
         for navigate_data in navigate_data_list:
             if navigate_data is None:
                 continue
@@ -170,16 +138,9 @@ class FoliumMap(BaseMap):
             else:
                 location = [mglat, mglng]
 
-            date_time_now = navigate_data.get_local_date_time()
-            if date_time_now is None:
-                continue
+            self.LocationList.append(location)
 
-            if not self.check_date_time(date_time_now):
-                continue
-
-            location_list.append(location)
-
-            if self.need_map_draw_marker(date_time_now):
+            if self.need_map_draw_marker(navigate_data):
                 popup = navigate_data.to_string()
 
                 self.set_mark_color(navigate_data)
@@ -191,9 +152,9 @@ class FoliumMap(BaseMap):
                     folium.Marker(location=location, popup=popup).add_to(self.Map)
 
         if color is not None:
-            folium.PolyLine(locations=location_list, color=color).add_to(self.Map)
+            folium.PolyLine(locations=self.LocationList, color=color).add_to(self.Map)
         else:
-            folium.PolyLine(locations=location_list).add_to(self.Map)
+            folium.PolyLine(locations=self.LocationList).add_to(self.Map)
 
     def save(self):
         print("Save map data ...")

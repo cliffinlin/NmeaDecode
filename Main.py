@@ -21,16 +21,23 @@ def main():
     nmea_decode.decode()
     folium_map.add_navigate_data_list(nmea_decode.NavigateDataList)
 
-    log_file = LogFile()
-    if log_file.FileName is not None:
-        nmea_decode = NmeaDecode()
-        nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
-        nmea_decode.decode()
-        folium_map.add_navigate_data_list(nmea_decode.NavigateDataList, color="red")
+    # log_file = LogFile()
+    # if log_file.FileName is not None:
+    #     nmea_decode = NmeaDecode()
+    #     nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
+    #     nmea_decode.decode()
+    #     folium_map.add_navigate_data_list(nmea_decode.NavigateDataList, color="red")
+    #
+    # log_file = LogFile()
+    # if log_file.FileName is not None:
+    #     nmea_decode = NmeaDecode()
+    #     nmea_decode.set_file_name(log_file.FileName, log_file.FileNameSorted)
+    #     nmea_decode.decode()
+    #     folium_map.add_navigate_data_list(nmea_decode.NavigateDataList, color="yellow")
 
-    folium_map.save()
-
-    webbrowser.open(folium_map.FileName)
+    if len(folium_map.LocationList) > 0:
+        folium_map.save()
+        webbrowser.open(folium_map.FileName)
 
     # gmplot_map = GMPlotMap()
     # gmplot_map.set_file_name(log_file.FileName)
