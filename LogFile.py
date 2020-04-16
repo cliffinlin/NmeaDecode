@@ -106,6 +106,10 @@ class LogFile:
         if self.FileName is None:
             return
 
+        if os.path.exists(self.FileNameSorted):
+            print(self.FileNameSorted, "already exist.")
+            return
+
         if not os.path.exists(self.FileName):
             print(self.FileName, "file not found!")
             sys.exit()
@@ -138,6 +142,10 @@ class LogFile:
 
     def search_nmea(self):
         if self.FileName is None:
+            return
+
+        if os.path.exists(self.FileName):
+            print(self.FileName, "already exist.")
             return
 
         self.OutputFile = open(self.FileName, "w")
