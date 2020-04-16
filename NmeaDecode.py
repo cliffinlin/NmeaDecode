@@ -330,7 +330,7 @@ class NmeaDecode:
         else:
             self.NavigateDataList.append(navigate_data)
 
-            self.Statistic.add_to_dop_data_list(navigate_data)
+            self.Statistic.add_to_data_list(navigate_data)
 
     def statistic(self):
         if self.Statistic is None:
