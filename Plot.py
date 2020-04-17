@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from matplotlib.patches import Circle
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 
@@ -20,9 +20,10 @@ class Plot:
         if longitude_mean_variance is None or latitude_mean_variance is None:
             return
 
-        longitude_offset = max(abs(longitude_mean_variance.Mean - longitude_mean_variance.Min),
+        offset = 1
+        longitude_offset = offset * max(abs(longitude_mean_variance.Mean - longitude_mean_variance.Min),
                                abs(longitude_mean_variance.Mean - longitude_mean_variance.Max))
-        latitude_offset = max(abs(latitude_mean_variance.Mean - latitude_mean_variance.Min),
+        latitude_offset = offset * max(abs(latitude_mean_variance.Mean - latitude_mean_variance.Min),
                               abs(latitude_mean_variance.Mean - latitude_mean_variance.Max))
 
         self.llcrnrlon = longitude_mean_variance.Mean - longitude_offset
@@ -38,9 +39,12 @@ class Plot:
                       resolution='i', lat_0=self.lat_0, lon_0=self.lon_0)
 
         x, y = map(longitude_mean_variance.DataList, latitude_mean_variance.DataList)
+        x0, y0 = map(longitude_mean_variance.Mean, latitude_mean_variance.Mean)
 
         map.scatter(x, y)
 
-        map.drawcoastlines()
+        for i in range(0, 5):
+            circle = Circle((x0, y0), radius=i+1, fill=False, color='r')
+            plt.gca().add_patch(circle)
 
         plt.show()
