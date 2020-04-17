@@ -23,7 +23,7 @@ from GPRMC import GPRMC
 from GPVTG import GPVTG
 
 from NavigateData import NavigateData
-from Statistic import Statistic
+from NmeaStatistic import NmeaStatistic
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DATE_TIME_FROM = None  #"2020-04-13 07:00:00"  # None  # "2020-04-14 14:00:00"
@@ -73,7 +73,7 @@ class NmeaDecode:
 
         self.NavigateDataList = []
 
-        self.Statistic = Statistic()
+        self.NmeaStatistic = NmeaStatistic()
 
         self.setup_date_time_from()
         self.setup_date_time_to()
@@ -83,7 +83,7 @@ class NmeaDecode:
         self.LogFileNameSorted = log_file_name_sorted
 
         self.FileNameOut = self.LogFileName + FILE_NAME_EXT_OUT
-        self.Statistic.set_file_name(self.LogFileName)
+        self.NmeaStatistic.set_file_name(self.LogFileName)
 
     def decode(self):
         if not os.path.exists(self.LogFileNameSorted):
@@ -305,7 +305,7 @@ class NmeaDecode:
 
                 self.add_to_navigate_data_list(navigate_data)
 
-        self.statistic()
+        self.nmea_statistic()
 
         self.OutputFile.close()
 
@@ -366,12 +366,12 @@ class NmeaDecode:
         else:
             self.NavigateDataList.append(navigate_data)
 
-            self.Statistic.add_to_data_list(navigate_data)
+            self.NmeaStatistic.add_to_data_list(navigate_data)
 
-    def statistic(self):
-        if self.Statistic is None:
+    def nmea_statistic(self):
+        if self.NmeaStatistic is None:
             return
 
-        self.Statistic.statistic()
+        self.NmeaStatistic.statistic()
 
-        self.write_to_output_file(self.Statistic.to_string())
+        self.write_to_output_file(self.NmeaStatistic.to_string())

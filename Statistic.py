@@ -1,163 +1,139 @@
 #!/usr/bin/env python
-from geopy import distance
+import numpy
 
-from MeanVariance import MeanVariance
-from Plot import Plot
-
-SEPARATOR_N = "\n"
-SEPARATOR_T = "\t"
-
-FILE_NAME_EXT_STATISTIC = ".statistic"
+SEPARATE_STRING = ",\t"
 
 
 class Statistic:
     def __init__(self):
-        self.FileName = FILE_NAME_EXT_STATISTIC
-        self.OutputFile = None
+        self.DataType = ""
+        self.Separate = SEPARATE_STRING
 
-        self.LastNavigateData = None
+        self.DataList = None
 
-        self.DistanceFromLastPoint = 0
-        self.TotalDistance = 0
+        self.Min = None
+        self.Max = None
+        self.Mean = None
+        self.Var = None
+        self.Std = None
 
-        self.LatitudeMin = None
-        self.LatitudeMax = None
-        self.LongitudeMin = None
-        self.LongitudeMax = None
+    def set_data_list(self, data_type, data_list):
+        self.DataType = data_type
+        if len(data_list) == 0:
+            return
 
-        self.FixQuality = None
+        self.DataList = numpy.array(data_list).astype(numpy.float)
 
-        self.PDOPList = []
-        self.HDOPList = []
-        self.VDOPList = []
+    def min(self):
+        if self.DataList is None:
+            return
 
-        self.LatitudeList = []
-        self.LongitudeList = []
+        self.Min = numpy.min(self.DataList)
 
-        self.PDOTMeanVariance = MeanVariance()
-        self.HDOTMeanVariance = MeanVariance()
-        self.VDOTMeanVariance = MeanVariance()
+    def max(self):
+        if self.DataList is None:
+            return
 
-        self.Plot = Plot()
+        self.Max = numpy.max(self.DataList)
 
-    def set_file_name(self, file_name):
-        self.FileName = file_name + FILE_NAME_EXT_STATISTIC
+    def mean(self):
+        if self.DataList is None:
+            return
 
-    def check_date_time(self, navigate_data):
-        result = False
+        self.Mean = numpy.mean(self.DataList)
 
-        if navigate_data is None:
+    def var(self):
+        if self.DataList is None:
+            return
+
+        self.Var = numpy.var(self.DataList)
+
+    def std(self):
+        if self.DataList is None:
+            return
+
+        self.Std = numpy.std(self.DataList)
+
+    def statistic(self, data_type, data_list):
+        self.set_data_list(data_type, data_list)
+
+        self.min()
+        self.max()
+        self.mean()
+        self.var()
+        self.std()
+
+        print(self.to_string())
+
+    def min_to_string(self):
+        result = ""
+
+        if self.Mean is None:
             return result
 
-        if navigate_data.LocalDateTime is None:
-            return result
-
-        if self.LastNavigateData is not None:
-            last_local_date_time = self.LastNavigateData.LocalDateTime
-            if last_local_date_time is not None:
-                duration = navigate_data.LocalDateTime - last_local_date_time
-                if duration.seconds <= 0:
-                    return result
-
-        result = True
+        result += "Min="
+        result += str(self.Min)
+        result += self.Separate
 
         return result
 
-    def add_to_data_list(self, navigate_data):
-        self.DistanceFromLastPoint = 0
+    def max_to_string(self):
+        result = ""
 
-        if navigate_data is None:
-            return
+        if self.Mean is None:
+            return result
 
-        if not self.check_date_time(navigate_data):
-            return
+        result += "Max="
+        result += str(self.Max)
+        result += self.Separate
 
-        if len(navigate_data.PDOP) == 0 or len(navigate_data.HDOP) == 0 or len(navigate_data.VDOP) == 0:
-            return
+        return result
 
-        if navigate_data.LatitudeValue == 0 or navigate_data.LongitudeValue == 0:
-            return
+    def mean_to_string(self):
+        result = ""
 
-        if self.LastNavigateData is not None:
-            last_point = (self.LastNavigateData.LatitudeValue, self.LastNavigateData.LongitudeValue)
-            current_point = (navigate_data.LatitudeValue, navigate_data.LongitudeValue)
-            self.DistanceFromLastPoint = distance.distance(last_point, current_point).m
+        if self.Mean is None:
+            return result
 
-        self.TotalDistance += self.DistanceFromLastPoint
+        result += "Mean="
+        result += str(self.Mean)
+        result += self.Separate
 
-        self.PDOPList.append(navigate_data.PDOP)
-        self.HDOPList.append(navigate_data.HDOP)
-        self.VDOPList.append(navigate_data.VDOP)
+        return result
 
-        self.LatitudeList.append(navigate_data.LatitudeValue)
-        self.LongitudeList.append(navigate_data.LongitudeValue)
+    def var_to_string(self):
+        result = ""
 
-        if self.LatitudeMin is None:
-            self.LatitudeMin = navigate_data.LatitudeValue
-        else:
-            self.LatitudeMin = min(self.LatitudeMin, navigate_data.LatitudeValue)
+        if self.Var is None:
+            return result
 
-        if self.LatitudeMax is None:
-            self.LatitudeMax = navigate_data.LatitudeValue
-        else:
-            self.LatitudeMax = max(self.LatitudeMax, navigate_data.LatitudeValue)
+        result += "Var="
+        result += str(self.Var)
+        result += self.Separate
 
-        if self.LongitudeMin is None:
-            self.LongitudeMin = navigate_data.LongitudeValue
-        else:
-            self.LongitudeMin = min(self.LongitudeMin, navigate_data.LongitudeValue)
+        return result
 
-        if self.LongitudeMax is None:
-            self.LongitudeMax = navigate_data.LongitudeValue
-        else:
-            self.LongitudeMax = max(self.LongitudeMax, navigate_data.LongitudeValue)
+    def std_to_string(self):
+        result = ""
 
-        self.LastNavigateData = navigate_data
+        if self.Std is None:
+            return result
 
-        self.write_to_file(navigate_data)
+        result += "Std="
+        result += str(self.Std)
+        result += self.Separate
 
-    def write_to_file(self, navigate_data):
-        if self.OutputFile is None:
-            self.OutputFile = open(self.FileName, "w")
-            text = "date_time" + SEPARATOR_T\
-                   + "FixQuality" + SEPARATOR_T\
-                   + "PDOP" + SEPARATOR_T\
-                   + "HDOP" + SEPARATOR_T\
-                   + "VDOP" + SEPARATOR_T\
-                   + "Latitude" + SEPARATOR_T\
-                   + "Longitude" + SEPARATOR_T\
-                   + "delt" + SEPARATOR_T\
-                   + "total" + SEPARATOR_N
-            self.OutputFile.write(text)
-
-        if self.OutputFile is not None:
-            text = navigate_data.local_date_time_to_string() + SEPARATOR_T \
-                   + navigate_data.FixQuality + SEPARATOR_T \
-                   + navigate_data.PDOP + SEPARATOR_T\
-                   + navigate_data.HDOP + SEPARATOR_T\
-                   + navigate_data.VDOP + SEPARATOR_T\
-                   + str(navigate_data.LatitudeValue) + SEPARATOR_T\
-                   + str(navigate_data.LongitudeValue) + SEPARATOR_T\
-                   + str(self.DistanceFromLastPoint) + SEPARATOR_T\
-                   + str(self.TotalDistance) + SEPARATOR_N
-            self.OutputFile.write(text)
-
-    def statistic(self):
-        self.PDOTMeanVariance.statistic("PDOP", self.PDOPList)
-        self.HDOTMeanVariance.statistic("HDOP", self.HDOPList)
-        self.VDOTMeanVariance.statistic("VDOP", self.VDOPList)
-
-        self.Plot.set_domain(self.LongitudeMin, self.LatitudeMin, self.LongitudeMax, self.LatitudeMax)
-        self.Plot.draw(self.LongitudeList, self.LatitudeList)
-
-        if self.OutputFile is not None:
-            self.OutputFile.close()
+        return result
 
     def to_string(self):
         result = ""
 
-        result += self.PDOTMeanVariance.to_string() + SEPARATOR_N \
-                  + self.HDOTMeanVariance.to_string() + SEPARATOR_N \
-                  + self.VDOTMeanVariance.to_string() + SEPARATOR_N
+        result += self.DataType + self.Separate
+
+        result += self.min_to_string() \
+                  + self.max_to_string() \
+                  + self.mean_to_string() \
+                  + self.var_to_string() \
+                  + self.std_to_string()
 
         return result
