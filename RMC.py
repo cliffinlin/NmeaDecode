@@ -40,13 +40,15 @@ class RMC(NmeaSentence):
         self.TrackAngle = ""
 
     def decode(self, line):
+        result = False
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
-            return
+            return result
 
         if len(self.Data) < RMC_DATA_LENGTH_MIN:
-            return
+            return result
 
         self.Time = self.Data[RMC_INDEX_TIME]
         self.Status = self.Data[RMC_INDEX_STATUS]
@@ -64,6 +66,10 @@ class RMC(NmeaSentence):
         self.decode_date()
 
         print(self.to_string())
+
+        result = True
+
+        return result
 
     def track_angle_to_string(self):
         result = ""

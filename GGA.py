@@ -54,13 +54,15 @@ class GGA(NmeaSentence):
         NmeaSentence.__init__(self)
 
     def decode(self, line):
+        result = False
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
-            return
+            return result
 
         if len(self.Data) < GGA_DATA_LENGTH_MIN:
-            return
+            return result
 
         self.Time = self.Data[GGA_INDEX_TIME]
         self.Latitude = self.Data[GGA_INDEX_LATITUDE]
@@ -82,6 +84,10 @@ class GGA(NmeaSentence):
         self.decode_longitude()
 
         print(self.to_string())
+
+        result = True
+
+        return result
 
     def to_string(self):
         result = ""

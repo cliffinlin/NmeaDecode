@@ -42,13 +42,15 @@ class GSA(NmeaSentence):
         NmeaSentence.__init__(self)
 
     def decode(self, line):
+        result = True
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
-            return
+            return result
 
         if len(self.Data) < GSA_DATA_LENGTH_MIN:
-            return
+            return result
 
         self.Selection = self.Data[GSA_INDEX_SELECTION]
         self.FixType = self.Data[GSA_INDEX_FIX_TYPE]
@@ -58,6 +60,10 @@ class GSA(NmeaSentence):
         self.VDOP = self.Data[GSA_INDEX_VDOP]
 
         print(self.to_string())
+
+        result = True
+
+        return result
 
     def to_string(self):
         result = ""

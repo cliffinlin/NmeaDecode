@@ -51,13 +51,15 @@ class GSV(NmeaSentence):
         self.Current = ""
 
     def decode(self, line):
+        result = False
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
-            return
+            return result
 
         if len(self.Data) < GSV_DATA_LENGTH_MIN:
-            return
+            return result
 
         self.Total = self.Data[GSV_INDEX_TOTAL]
         self.Current = self.Data[GSV_INDEX_CURRENT]
@@ -74,6 +76,10 @@ class GSV(NmeaSentence):
             index += GSV_SATELLITE_DATA_LENGTH
 
         print(self.to_string())
+
+        result = True
+
+        return result
 
     def current_total_to_string(self):
         result = ""

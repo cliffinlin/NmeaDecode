@@ -33,13 +33,15 @@ class GLL(NmeaSentence):
         NmeaSentence.__init__(self)
 
     def decode(self, line):
+        result = False
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
-            return
+            return result
 
         if len(self.Data) < GLL_DATA_LENGTH_MIN:
-            return
+            return result
 
         self.Latitude = self.Data[GLL_INDEX_LATITUDE]
         self.LatitudeDirection = self.Data[GLL_INDEX_LATITUDE_DIRECTION]
@@ -53,6 +55,10 @@ class GLL(NmeaSentence):
         self.decode_time()
 
         print(self.to_string())
+
+        result = True
+
+        return result
 
     def to_string(self):
         result = ""

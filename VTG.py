@@ -32,13 +32,15 @@ class VTG(NmeaSentence):
         NmeaSentence.__init__(self)
 
     def decode(self, line):
+        result = False
+
         NmeaSentence.decode(self, line)
 
         if self.Data is None:
-            return
+            return result
 
         if len(self.Data) < VTG_DATA_LENGTH_MIN:
-            return
+            return result
 
         self.TrueTrack = self.Data[VTG_INDEX_TRUE_TRACK]
         self.TrueTrackMark = self.Data[VTG_INDEX_TRUE_TRACK_MARK]
@@ -50,6 +52,10 @@ class VTG(NmeaSentence):
         self.SpeedMMark = self.Data[VTG_INDEX_SPEED_M_MARK]
 
         print(self.to_string())
+
+        result = True
+
+        return result
 
     def to_string(self):
         result = ""
