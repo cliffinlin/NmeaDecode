@@ -17,6 +17,16 @@ class Statistic:
         self.Var = None
         self.Std = None
 
+    def valid(self):
+        result = False
+
+        if self.Mean is None or self.Min is None or self.Max is None:
+            return result
+
+        result = True
+
+        return result
+
     def set_data_list(self, data_type, data_list):
         self.DataType = data_type
         if len(data_list) == 0:
