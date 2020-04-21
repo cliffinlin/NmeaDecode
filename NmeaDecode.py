@@ -9,6 +9,12 @@ from BDGSA import BDGSA
 from BDGSV import BDGSV
 from BDRMC import BDRMC
 from BDVTG import BDVTG
+from GBGGA import GBGGA
+from GBGLL import GBGLL
+from GBGSA import GBGSA
+from GBGSV import GBGSV
+from GBRMC import GBRMC
+from GBVTG import GBVTG
 from GNGGA import GNGGA
 from GNGLL import GNGLL
 from GNGSA import GNGSA
@@ -26,8 +32,8 @@ from NavigateData import NavigateData
 from NmeaStatistic import NmeaStatistic
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-DATE_TIME_FROM = None  #"2020-04-16 13:44:00"  # None  # "2020-04-14 14:00:00"
-DATE_TIME_TO = None  #"2020-04-16 14:40:00"  # None  # "2020-04-14 14:30:00"
+DATE_TIME_FROM = None  #"2020-04-21 16:38:00"
+DATE_TIME_TO = None  #"2020-04-21 16:46:00"
 
 FILE_NAME_EXT_OUT = ".out"
 
@@ -35,26 +41,32 @@ class NmeaDecode:
     def __init__(self):
         self.GPRMC = GPRMC()
         self.BDRMC = BDRMC()
+        self.GBRMC = GBRMC()
         self.GNRMC = GNRMC()
 
         self.GPVTG = GPVTG()
         self.BDVTG = BDVTG()
+        self.GBVTG = GBVTG()
         self.GNVTG = GNVTG()
 
         self.GPGGA = GPGGA()
         self.BDGGA = BDGGA()
+        self.GBGGA = GBGGA()
         self.GNGGA = GNGGA()
 
         self.GPGSA = GPGSA()
         self.BDGSA = BDGSA()
+        self.GBGSA = GBGSA()
         self.GNGSA = GNGSA()
 
         self.GPGSV = GPGSV()
         self.BDGSV = BDGSV()
+        self.GBGSV = GBGSV()
         self.GNGSV = GNGSV()
 
         self.GPGLL = GPGLL()
         self.BDGLL = BDGLL()
+        self.GBGLL = GBGLL()
         self.GNGLL = GNGLL()
 
         self.DateTimeFrom = None
@@ -124,6 +136,17 @@ class NmeaDecode:
 
                     navigate_data.set_date(self.BDRMC.Date, self.BDRMC.Day, self.BDRMC.Month, self.BDRMC.Year)
 
+                if "$GBRMC" in line:
+                    if not self.GBRMC.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GBRMC.Sentence)
+                    self.write_to_output_file(self.GBRMC.to_string())
+
+                    navigate_data = NavigateData()
+
+                    navigate_data.set_date(self.GBRMC.Date, self.GBRMC.Day, self.GBRMC.Month, self.GBRMC.Year)
+
                 if "$GNRMC" in line:
                     if not self.GNRMC.decode(line):
                         continue
@@ -154,6 +177,16 @@ class NmeaDecode:
 
                     navigate_data.set_speed_n(self.BDVTG.SpeedN)
                     navigate_data.set_speed_m(self.BDVTG.SpeedM)
+
+                elif "$GBVTG" in line:
+                    if not self.GBVTG.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GBVTG.Sentence)
+                    self.write_to_output_file(self.GBVTG.to_string())
+
+                    navigate_data.set_speed_n(self.GBVTG.SpeedN)
+                    navigate_data.set_speed_m(self.GBVTG.SpeedM)
 
                 elif "$GNVTG" in line:
                     if not self.GNVTG.decode(line):
@@ -197,6 +230,22 @@ class NmeaDecode:
                     navigate_data.set_differential_data_age(self.BDGGA.DifferentialDataAge)
                     navigate_data.set_reference_station_id(self.BDGGA.ReferenceStationID)
 
+                elif "$GBGGA" in line:
+                    if not self.GBGGA.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GBGGA.Sentence)
+                    self.write_to_output_file(self.GBGGA.to_string())
+
+                    navigate_data.set_time(self.GBGGA.Time, self.GBGGA.Hour, self.GBGGA.Minute, self.GBGGA.Second)
+                    navigate_data.set_latitude(self.GBGGA.Latitude, self.GBGGA.LatitudeValue)
+                    navigate_data.set_longitude(self.GBGGA.Longitude, self.GBGGA.LongitudeValue)
+                    navigate_data.set_altitude(self.GBGGA.Altitude)
+                    navigate_data.set_fix_quality(self.GBGGA.FixQuality)
+                    navigate_data.set_tracked_number(self.GBGGA.TrackedNumber)
+                    navigate_data.set_differential_data_age(self.GBGGA.DifferentialDataAge)
+                    navigate_data.set_reference_station_id(self.GBGGA.ReferenceStationID)
+
                 elif "$GNGGA" in line:
                     if not self.GNGGA.decode(line):
                         continue
@@ -239,6 +288,19 @@ class NmeaDecode:
                     navigate_data.set_hdop(self.BDGSA.HDOP)
                     navigate_data.set_vdop(self.BDGSA.VDOP)
 
+                elif "$GBGSA" in line:
+                    if not self.GBGSA.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GBGSA.Sentence)
+                    self.write_to_output_file(self.GBGSA.to_string())
+
+                    navigate_data.set_fix_type(self.GBGSA.FixType)
+                    navigate_data.set_bds_used(self.GBGSA.Used)
+                    navigate_data.set_pdop(self.GBGSA.PDOP)
+                    navigate_data.set_hdop(self.GBGSA.HDOP)
+                    navigate_data.set_vdop(self.GBGSA.VDOP)
+
                 elif "$GNGSA" in line:
                     if not self.GNGSA.decode(line):
                         continue
@@ -272,6 +334,16 @@ class NmeaDecode:
                     navigate_data.set_bds_view(self.BDGSV.View)
                     navigate_data.set_bds_satellite_list(self.BDGSV.SatelliteList)
 
+                elif "$GBGSV" in line:
+                    if not self.GBGSV.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GBGSV.Sentence)
+                    self.write_to_output_file(self.GBGSV.to_string())
+
+                    navigate_data.set_bds_view(self.GBGSV.View)
+                    navigate_data.set_bds_satellite_list(self.GBGSV.SatelliteList)
+
                 elif "$GNGSV" in line:
                     if not self.GNGSV.decode(line):
                         continue
@@ -295,6 +367,13 @@ class NmeaDecode:
 
                     self.set_last_sentence(self.BDGLL.Sentence)
                     self.write_to_output_file(self.BDGLL.to_string())
+
+                elif "$GBGLL" in line:
+                    if not self.GBGLL.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GBGLL.Sentence)
+                    self.write_to_output_file(self.GBGLL.to_string())
 
                 elif "$GNGLL" in line:
                     if not self.GNGLL.decode(line):
