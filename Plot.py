@@ -23,11 +23,12 @@ class Plot:
         if not latitude_statistic.valid():
             return
 
-        offset = 1
-        longitude_offset = offset * max(abs(longitude_statistic.Mean - longitude_statistic.Min),
-                               abs(longitude_statistic.Mean - longitude_statistic.Max))
-        latitude_offset = offset * max(abs(latitude_statistic.Mean - latitude_statistic.Min),
-                              abs(latitude_statistic.Mean - latitude_statistic.Max))
+        a = 1
+        b = 0.001
+        longitude_offset = a * max(abs(longitude_statistic.Mean - longitude_statistic.Min),
+                               abs(longitude_statistic.Mean - longitude_statistic.Max)) + b
+        latitude_offset = a * max(abs(latitude_statistic.Mean - latitude_statistic.Min),
+                              abs(latitude_statistic.Mean - latitude_statistic.Max)) + b
 
         self.llcrnrlon = longitude_statistic.Mean - longitude_offset
         self.llcrnrlat = latitude_statistic.Mean - latitude_offset
