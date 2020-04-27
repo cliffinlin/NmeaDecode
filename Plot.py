@@ -47,7 +47,17 @@ class Plot:
 
         map.scatter(x, y)
 
-        for i in range(0, 5):
+        maxRadius = 5
+        x_axix = (x0 - maxRadius, x0 + maxRadius)
+        y_axix = (y0 - maxRadius, y0 + maxRadius)
+
+        plt.plot(x_axix, (y0, y0), color='red')
+        plt.plot((x0, x0), y_axix, color='red')
+
+        text = str(self.lat_0) + ", " + str(self.lon_0)
+        plt.text(x0, y0, text)
+
+        for i in range(0, maxRadius):
             circle = Circle((x0, y0), radius=i+1, fill=False, color='r')
             plt.gca().add_patch(circle)
 

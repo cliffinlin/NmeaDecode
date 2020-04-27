@@ -32,8 +32,8 @@ from NavigateData import NavigateData
 from NmeaStatistic import NmeaStatistic
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-DATE_TIME_FROM = None  #"2020-04-21 16:38:00"
-DATE_TIME_TO = None  #"2020-04-21 16:46:00"
+DATE_TIME_FROM = None  #"2020-04-27 16:20:00"  #"2020-04-21 16:38:00" #None  #
+DATE_TIME_TO = None  #"2020-04-27 16:29:00"  #"2020-04-21 16:46:00" #None  #
 
 FILE_NAME_EXT_OUT = ".out"
 
