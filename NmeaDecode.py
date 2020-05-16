@@ -32,8 +32,11 @@ from NavigateData import NavigateData
 from NmeaStatistic import NmeaStatistic
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-DATE_TIME_FROM = None  #"2020-04-27 16:20:00"  #"2020-04-21 16:38:00" #None  #
-DATE_TIME_TO = None  #"2020-04-27 16:29:00"  #"2020-04-21 16:46:00" #None  #
+DATE_TIME_FROM = None #"2020-05-15 18:26:00"  #"2020-04-21 16:38:00" #None  #
+DATE_TIME_TO = None #"2020-05-15 18:46:00"  #"2020-04-21 16:46:00" #None  #
+
+# DATE_TIME_FROM = "2020-05-15 18:56:00"  #"2020-04-21 16:38:00" #None  #
+# DATE_TIME_TO = "2020-05-15 19:06:00"  #"2020-04-21 16:46:00" #None  #
 
 FILE_NAME_EXT_OUT = ".out"
 
@@ -387,6 +390,8 @@ class NmeaDecode:
         self.nmea_statistic()
 
         self.OutputFile.close()
+
+        self.NmeaStatistic.Plot.draw()
 
     def set_last_sentence(self, sentence):
         if len(sentence) == 0:

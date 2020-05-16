@@ -28,12 +28,15 @@ class NmeaStatistic:
 
         self.LatitudeList = []
         self.LongitudeList = []
+        self.AltitudeList = []
 
         self.PDOTStatistic = Statistic()
         self.HDOTStatistic = Statistic()
         self.VDOTStatistic = Statistic()
+
         self.LatitudeStatistic = Statistic()
         self.LongitudeStatistic = Statistic()
+        self.AltitudeStatistic = Statistic()
 
         self.Plot = Plot()
 
@@ -87,6 +90,7 @@ class NmeaStatistic:
         self.VDOPList.append(navigate_data.VDOP)
         self.LatitudeList.append(navigate_data.LatitudeValue)
         self.LongitudeList.append(navigate_data.LongitudeValue)
+        self.AltitudeList.append(float(navigate_data.Altitude))
 
         self.LastNavigateData = navigate_data
 
@@ -124,8 +128,9 @@ class NmeaStatistic:
         self.VDOTStatistic.statistic("VDOP", self.VDOPList)
         self.LatitudeStatistic.statistic("Latitude", self.LatitudeList)
         self.LongitudeStatistic.statistic("Longitude", self.LongitudeList)
+        self.AltitudeStatistic.statistic("Altitude", self.AltitudeList)
 
-        self.Plot.draw(self.LongitudeStatistic, self.LatitudeStatistic)
+        self.Plot.convert(self.LongitudeStatistic, self.LatitudeStatistic)
 
         if self.OutputFile is not None:
             self.OutputFile.close()
@@ -135,6 +140,10 @@ class NmeaStatistic:
 
         result += self.PDOTStatistic.to_string() + SEPARATOR_N \
                   + self.HDOTStatistic.to_string() + SEPARATOR_N \
-                  + self.VDOTStatistic.to_string() + SEPARATOR_N
+                  + self.VDOTStatistic.to_string() + SEPARATOR_N \
+                  + self.LatitudeStatistic.to_string() + SEPARATOR_N \
+                  + self.LongitudeStatistic.to_string() + SEPARATOR_N \
+                  + self.AltitudeStatistic.to_string() + SEPARATOR_N \
+                  + self.Plot.to_string() + SEPARATOR_N
 
         return result
