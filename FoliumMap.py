@@ -3,7 +3,10 @@ import branca
 import folium
 
 import Transform
-from BaseMap import BaseMap
+
+FILE_NAME_EXT_HTML = '.html'
+MAP_DEFAULT_CENTER_LOCATION = [39.9032, 116.3915]
+MAP_DEFAULT_ZOOM = 12
 
 GOOGLE_MAP = True
 
@@ -16,9 +19,12 @@ MAP_DRAW_MARK_COLOR_FIX_QUALITY = True
 MAP_DRAW_MARK_DURATION_IN_SECOND = 10
 
 
-class FoliumMap(BaseMap):
+class FoliumMap:
     def __init__(self):
-        BaseMap.__init__(self)
+        self.CenterLocation = MAP_DEFAULT_CENTER_LOCATION
+        self.Zoom = MAP_DEFAULT_ZOOM
+
+        self.FileName = None
 
         self.Map = None
         self.ColorMap = None
@@ -29,6 +35,9 @@ class FoliumMap(BaseMap):
         self.LocationList = []
 
         self.setup_map()
+
+    def set_file_name(self, file_name):
+        self.FileName = file_name + FILE_NAME_EXT_HTML
 
     def setup_map(self):
         if GOOGLE_MAP:

@@ -391,8 +391,6 @@ class NmeaDecode:
 
         self.OutputFile.close()
 
-        self.NmeaStatistic.Plot.draw()
-
     def set_last_sentence(self, sentence):
         if len(sentence) == 0:
             return
@@ -458,4 +456,4 @@ class NmeaDecode:
 
         self.NmeaStatistic.statistic()
 
-        self.write_to_output_file(self.NmeaStatistic.to_string())
+        self.NmeaStatistic.draw()

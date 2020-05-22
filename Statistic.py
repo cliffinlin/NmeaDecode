@@ -75,6 +75,28 @@ class Statistic:
 
         print(self.to_string())
 
+    # 点位精度评定 https://blog.csdn.net/weixin_30670151/article/details/99243902
+    @staticmethod
+    def cep(stdx, stdy):
+        if stdx is None or stdy is None:
+            return 0
+
+        return 0.589 * (stdx + stdy)
+
+    @staticmethod
+    def cep95(stdx, stdy):
+        if stdx is None or stdy is None:
+            return 0
+
+        return 1.2272 * (stdx + stdy)
+
+    @staticmethod
+    def cep99(stdx, stdy):
+        if stdx is None or stdy is None:
+            return 0
+
+        return 1.5222 * (stdx + stdy)
+
     def min_to_string(self):
         result = ""
 
