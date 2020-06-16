@@ -142,7 +142,7 @@ class NmeaStatistic:
                    + "HDOP" + SEPARATOR_T \
                    + "VDOP" + SEPARATOR_T \
                    + "Latitude" + SEPARATOR_T \
-                   + "Longitude" + SEPARATOR_T\
+                   + "Longitude" + SEPARATOR_T \
                    + "Altitude" + SEPARATOR_T \
                    + "delt" + SEPARATOR_T \
                    + "total" + SEPARATOR_N
@@ -179,6 +179,7 @@ class NmeaStatistic:
         self.CEP99 = Statistic.cep99(self.XStatistic.Std, self.YStatistic.Std)
 
         print(self.cep_to_string())
+        print(self.rms_to_string())
         print(self.test_point_count_to_string())
 
         if self.OutputFile is not None:
@@ -223,6 +224,14 @@ class NmeaStatistic:
 
         return result
 
+    def rms_to_string(self):
+        result = ""
+
+        result += "RMS_H = " + str(1.2 * self.CEP) + SEPARATOR_N \
+                  + "RMS_V = " + str(self.AltitudeStatistic.Std) + SEPARATOR_N
+
+        return result
+
     def cep_to_string(self):
         result = ""
 
@@ -244,6 +253,7 @@ class NmeaStatistic:
                   + self.XStatistic.to_string() + SEPARATOR_N \
                   + self.YStatistic.to_string() + SEPARATOR_N \
                   + self.cep_to_string() + SEPARATOR_N \
-                  + self.test_point_count_to_string()
+                  + self.rms_to_string() + SEPARATOR_N \
+                  + self.test_point_count_to_string() + SEPARATOR_N
 
         return result
