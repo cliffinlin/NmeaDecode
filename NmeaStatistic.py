@@ -11,7 +11,7 @@ SEPARATOR_N = "\n"
 SEPARATOR_T = "\t"
 
 FILE_NAME_EXT_DATA = ".data"
-
+MAX_RADIUS = 10
 
 class NmeaStatistic:
     def __init__(self):
@@ -195,16 +195,17 @@ class NmeaStatistic:
         x0 = self.XStatistic.Mean
         y0 = self.YStatistic.Mean
 
-        max_radius = 5
-        x_axis = (x0 - max_radius, x0 + max_radius)
-        y_axis = (y0 - max_radius, y0 + max_radius)
+        # MAX_RADIUS = 10
+        x_axis = (x0 - MAX_RADIUS, x0 + MAX_RADIUS)
+        y_axis = (y0 - MAX_RADIUS, y0 + MAX_RADIUS)
 
         plt.plot(x_axis, (y0, y0), color='grey')
         plt.plot((x0, x0), y_axis, color='grey')
 
-        for i in range(0, max_radius):
+        for i in range(0, MAX_RADIUS):
             circle = Circle((x0, y0), radius=i + 1, fill=False, color='#00ffff', alpha=0.5)
             plt.gca().add_patch(circle)
+            plt.text(x0 + i + 1, y0, i + 1)
 
         circle = Circle((x0, y0), radius=self.CEP, fill=False, color='red')
         plt.gca().add_patch(circle)

@@ -21,7 +21,6 @@ MAP_DRAW_MARK_DURATION_IN_SECOND = 10
 
 class FoliumMap:
     def __init__(self):
-        self.CenterLocation = MAP_DEFAULT_CENTER_LOCATION
         self.Zoom = MAP_DEFAULT_ZOOM
 
         self.FileName = None
@@ -46,7 +45,7 @@ class FoliumMap:
             tiles = 'http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'  # 高德卫星图
 
         self.Map = folium.Map(
-            location=self.CenterLocation,
+            location=MAP_DEFAULT_CENTER_LOCATION,
             zoom_start=self.Zoom,
             tiles=tiles,
             # tiles='http://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}', # 高德街道图
@@ -123,15 +122,26 @@ class FoliumMap:
             if float(navigate_data.PDOP) > DOP_THRESH_HOLD:
                 self.MarkColor = "red"
 
-    def add_navigate_data_list(self, navigate_data_list, color=None):
+    def add_navigate_data_list(self, nmea_decode, color=None):
         print("\n")
         print("Add data to map...")
-        if navigate_data_list is None or len(navigate_data_list) == 0:
+
+        if nmea_decode is None:
+            print("nmea_decode is None, return")
+            return
+
+        if nmea_decode.NavigateDataList is None or len(nmea_decode.NavigateDataList) == 0:
             print("No data to draw!")
             return
 
+        if nmea_decode.NmeaStatistic is not None:
+            if nmea_decode.NmeaStatistic.LatitudeStatistic is not None\
+                    and nmea_decode.NmeaStatistic.LongitudeStatistic is not None:
+                self.Map.location = [nmea_decode.NmeaStatistic.LatitudeStatistic.Mean,
+                                       nmea_decode.NmeaStatistic.LongitudeStatistic.Mean]
+
         self.LocationList = []
-        for navigate_data in navigate_data_list:
+        for navigate_data in nmea_decode.NavigateDataList:
             if navigate_data is None:
                 continue
 
