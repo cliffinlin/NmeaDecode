@@ -23,7 +23,7 @@ class NmeaStatistic:
         self.DistanceFromLastPoint = 0
         self.TotalDistance = 0
 
-        self.FixQuality = None
+        self.MarkColor = None
 
         self.PDOPList = []
         self.HDOPList = []
@@ -35,6 +35,8 @@ class NmeaStatistic:
 
         self.XList = []
         self.YList = []
+
+        self.ColorList = []
 
         self.PDOTStatistic = Statistic()
         self.HDOTStatistic = Statistic()
@@ -104,6 +106,24 @@ class NmeaStatistic:
         self.LatitudeList.append(navigate_data.LatitudeValue)
         self.LongitudeList.append(navigate_data.LongitudeValue)
         self.AltitudeList.append(float(navigate_data.Altitude))
+        # (55, 168, 218), (187, 249, 112), (255, 255, 0), (113, 130, 36), (113, 174, 38), (255, 255, 255)
+        value = int(navigate_data.FixQuality)
+        if value == 0:
+            self.MarkColor = (0.5, 0.5, 0.5)  # remark = "Invalid"
+        elif value == 1:
+            self.MarkColor = (0.22, 0.67, 0.872)  # remark = "SPS"
+        elif value == 2:
+            self.MarkColor = (0.733, 0.976, 0.439)  # remark = "Differential"
+        elif value == 3:
+            self.MarkColor = (1.0, 1.0, 0)  # remark = "PPS"
+        elif value == 4:
+            self.MarkColor = (0.443, 0.509, 0.141)  # remark = "RTK Fixed"
+        elif value == 5:
+            self.MarkColor = (0.443, 0.682, 0.149)  # remark = "RTK Float"
+        elif value == 6:
+            self.MarkColor = (1.0, 1.0, 1.0)  # remark = "Estimated"
+
+        self.ColorList.append(self.MarkColor)
 
         self.LastNavigateData = navigate_data
 
@@ -190,7 +210,7 @@ class NmeaStatistic:
         if self.Basemap is None:
             return
 
-        self.Basemap.scatter(self.XList, self.YList)
+        self.Basemap.scatter(self.XList, self.YList, c=self.ColorList)
 
         x0 = self.XStatistic.Mean
         y0 = self.YStatistic.Mean
@@ -209,12 +229,15 @@ class NmeaStatistic:
 
         circle = Circle((x0, y0), radius=self.CEP, fill=False, color='red')
         plt.gca().add_patch(circle)
+        plt.text(x0, y0 + self.CEP, ("%.4f" % self.CEP))
 
         circle = Circle((x0, y0), radius=self.CEP95, fill=False, color='red')
         plt.gca().add_patch(circle)
+        plt.text(x0, y0 + self.CEP95, ("%.4f" % self.CEP95))
 
         circle = Circle((x0, y0), radius=self.CEP99, fill=False, color='red')
         plt.gca().add_patch(circle)
+        plt.text(x0, y0 + self.CEP99, ("%.4f" % self.CEP99))
 
         plt.show()
 
