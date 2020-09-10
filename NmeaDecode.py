@@ -12,6 +12,7 @@ from BDVTG import BDVTG
 from GBGGA import GBGGA
 from GBGLL import GBGLL
 from GBGSA import GBGSA
+from GLGSV import GLGSV
 from GBGSV import GBGSV
 from GBRMC import GBRMC
 from GBVTG import GBVTG
@@ -36,26 +37,11 @@ DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DATE_TIME_FROM = None
 DATE_TIME_TO = None
 
-# DATE_TIME_FROM = "2020-07-21 10:35:00"  #"2020-04-21 16:38:00" #None  #
-# DATE_TIME_TO = "2020-07-21 10:45:00"  #"2020-04-21 16:46:00" #None  #
-
-# DATE_TIME_FROM = "2020-07-21 10:45:00"  #"2020-04-21 16:38:00" #None  #
-# DATE_TIME_TO = "2020-07-21 10:55:00"  #"2020-04-21 16:46:00" #None  #
-
-DATE_TIME_FROM = "2020-07-21 07:55:00"  #"2020-04-21 16:38:00" #None  #
-DATE_TIME_TO = "2020-07-21 08:30:00"  #"2020-04-21 16:46:00" #None  #
-
-# DATE_TIME_FROM = "2020-07-21 08:35:00"  #"2020-04-21 16:38:00" #None  #
-# DATE_TIME_TO = "2020-07-21 08:55:00"  #"2020-04-21 16:46:00" #None  #
-
-# DATE_TIME_FROM = "2020-07-02 17:45:00"  #"2020-04-21 16:38:00" #None  #
-# DATE_TIME_TO = "2020-07-02 18:59:00"  #"2020-04-21 16:46:00" #None  #
-
-# DATE_TIME_FROM = "2020-06-02 15:44:00"  #"2020-04-21 16:38:00" #None  #
-# DATE_TIME_TO = "2020-06-02 15:54:00"  #"2020-04-21 16:46:00" #None  #
-
-# DATE_TIME_FROM = "2020-06-02 15:54:00"  #"2020-04-21 16:38:00" #None  #
-# DATE_TIME_TO = "2020-06-02 16:04:00"  #"2020-04-21 16:46:00" #None  #
+# DATE_TIME_FROM = "2020-09-10 08:17:00"
+# DATE_TIME_TO = "2020-09-10 08:27:00"
+#
+# DATE_TIME_FROM = "2020-09-10 08:36:00"
+# DATE_TIME_TO = "2020-09-10 08:46:00"
 
 FILE_NAME_EXT_OUT = ".out"
 
@@ -82,6 +68,7 @@ class NmeaDecode:
         self.GNGSA = GNGSA()
 
         self.GPGSV = GPGSV()
+        self.GLGSV = GLGSV()
         self.BDGSV = BDGSV()
         self.GBGSV = GBGSV()
         self.GNGSV = GNGSV()
@@ -345,6 +332,16 @@ class NmeaDecode:
 
                     navigate_data.set_gps_view(self.GPGSV.View)
                     navigate_data.set_gps_satellite_list(self.GPGSV.SatelliteList)
+
+                elif "$GLGSV" in line:
+                    if not self.GLGSV.decode(line):
+                        continue
+
+                    self.set_last_sentence(self.GLGSV.Sentence)
+                    self.write_to_output_file(self.GLGSV.to_string())
+
+                    navigate_data.set_glo_view(self.GLGSV.View)
+                    navigate_data.set_glo_satellite_list(self.GLGSV.SatelliteList)
 
                 elif "$BDGSV" in line:
                     if not self.BDGSV.decode(line):

@@ -100,12 +100,17 @@ class NmeaStatistic:
 
         self.TotalDistance += self.DistanceFromLastPoint
 
-        self.PDOPList.append(navigate_data.PDOP)
-        self.HDOPList.append(navigate_data.HDOP)
-        self.VDOPList.append(navigate_data.VDOP)
-        self.LatitudeList.append(navigate_data.LatitudeValue)
-        self.LongitudeList.append(navigate_data.LongitudeValue)
-        self.AltitudeList.append(float(navigate_data.Altitude))
+        try:
+            self.PDOPList.append(navigate_data.PDOP)
+            self.HDOPList.append(navigate_data.HDOP)
+            self.VDOPList.append(navigate_data.VDOP)
+            self.LatitudeList.append(navigate_data.LatitudeValue)
+            self.LongitudeList.append(navigate_data.LongitudeValue)
+            self.AltitudeList.append(float(navigate_data.Altitude))
+        except ValueError as e:
+            print("ValueError:", e)
+            return
+
         # (55, 168, 218), (187, 249, 112), (255, 255, 0), (113, 130, 36), (113, 174, 38), (255, 255, 255)
         value = int(navigate_data.FixQuality)
         if value == 0:

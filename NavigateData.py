@@ -13,16 +13,22 @@ class NavigateData(NmeaSentence):
         self.Separate = SEPARATE_STRING
 
         self.GPSView = ""
+        self.GLOView = ""
         self.BDSView = ""
 
         self.GPSUsed = None
+        self.GLOUsed = None
         self.BDSUsed = None
 
         self.GPSSatelliteList = []
+        self.GLOSatelliteList = []
         self.BDSSatelliteList = []
 
     def set_gps_view(self, view):
         self.GPSView = view
+
+    def set_glo_view(self, view):
+        self.GLOView = view
 
     def set_bds_view(self, view):
         self.BDSView = view
@@ -32,6 +38,9 @@ class NavigateData(NmeaSentence):
 
     def set_gps_used(self, used):
         self.GPSUsed = used
+
+    def set_glo_used(self, used):
+        self.GLOUsed = used
 
     def set_bds_used(self, used):
         self.BDSUsed = used
@@ -46,6 +55,11 @@ class NavigateData(NmeaSentence):
             return
         self.GPSSatelliteList.extend(satellite_list)
 
+    def set_glo_satellite_list(self, satellite_list):
+        if satellite_list is None:
+            return
+        self.GLOSatelliteList.extend(satellite_list)
+
     def set_bds_satellite_list(self, satellite_list):
         if satellite_list is None:
             return
@@ -59,6 +73,18 @@ class NavigateData(NmeaSentence):
 
         result += "GPSView="
         result += self.GPSView
+        result += self.Separate
+
+        return result
+
+    def glo_view_to_string(self):
+        result = ""
+
+        if self.GLOView is None or len(self.GLOView) == 0:
+            return result
+
+        result += "GLOView="
+        result += self.GLOView
         result += self.Separate
 
         return result
@@ -85,6 +111,27 @@ class NavigateData(NmeaSentence):
 
         count = 0
         for prn in self.GPSUsed:
+            if prn is not None and len(prn) > 0:
+                if count == 0:
+                    result += "#" + prn
+                else:
+                    result += "," + "#" + prn
+            count += 1
+
+        result += self.Separate
+
+        return result
+
+    def glo_used_to_string(self):
+        result = ""
+
+        if self.GLOUsed is None or len(self.GLOUsed) == 0:
+            return result
+
+        result += "GLOUsed:"
+
+        count = 0
+        for prn in self.GLOUsed:
             if prn is not None and len(prn) > 0:
                 if count == 0:
                     result += "#" + prn
@@ -141,6 +188,18 @@ class NavigateData(NmeaSentence):
 
         return result
 
+    def glo_satellite_list_to_string(self):
+        result = ""
+
+        if self.GLOSatelliteList is None or len(self.GLOSatelliteList) == 0:
+            return result
+
+        for satellite in self.GLOSatelliteList:
+            if satellite is not None:
+                result += satellite.to_string()
+
+        return result
+
     def bds_satellite_list_to_string(self):
         result = ""
 
@@ -179,6 +238,10 @@ class NavigateData(NmeaSentence):
         result += self.gps_used_to_string()
         result += self.gps_view_to_string()
         result += self.gps_satellite_list_to_string()
+
+        result += self.glo_used_to_string()
+        result += self.glo_view_to_string()
+        result += self.glo_satellite_list_to_string()
 
         result += self.bds_used_to_string()
         result += self.bds_view_to_string()

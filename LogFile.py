@@ -9,7 +9,9 @@ DEFAULT_ENCODING = "latin1"
 FILE_NAME_EXT = ".txt"
 FILE_NAME_EXT_SORTED = ".sorted"
 
-KEY_WORD_MAIN_LOG = "main_log"
+FILE_TYPE_MAIN_LOG = "main_log"
+FILE_TYPE_NMEA_LOG = "nmea"
+
 KEY_WORD_NMEA_DATA_TYPE = ["RMC", "VTG", "GGA", "GSA", "GSV", "GLL"]
 
 
@@ -25,6 +27,8 @@ class LogFile:
 
         self.Date = None
         self.Time = None
+
+        self.FileType = FILE_TYPE_MAIN_LOG
 
         self.KeyWords = KEY_WORD_NMEA_DATA_TYPE
 
@@ -56,9 +60,6 @@ class LogFile:
         self.Time = None
 
         if line is None:
-            return
-
-        if KEY_WORD_MAIN_LOG not in line:
             return
 
         part_list = line.split(" ")
@@ -97,8 +98,12 @@ class LogFile:
         if self.Date is None or self.Time is None:
             return 0
 
-        local_datetime = datetime.strptime(self.Date + " " + self.Time, '%Y-%m-%d %H:%M:%S.%f')
-        diff_seconds = (local_datetime - datetime.fromtimestamp(0)).total_seconds()
+        try:
+            local_datetime = datetime.strptime(self.Date + " " + self.Time, '%Y-%m-%d %H:%M:%S.%f')
+            diff_seconds = (local_datetime - datetime.fromtimestamp(0)).total_seconds()
+        except ValueError as e:
+            print("ValueError:", e)
+            return 0
 
         return diff_seconds
 
@@ -121,9 +126,10 @@ class LogFile:
                 self.Date = None
                 self.Time = None
 
-                self.parse_date_time(line)
-                if self.Date is None or self.Time is None:
-                    continue
+                if FILE_TYPE_MAIN_LOG in line:
+                    self.parse_date_time(line)
+                    if self.Date is None or self.Time is None:
+                        continue
 
                 line_list.append(line)
 
@@ -154,6 +160,9 @@ class LogFile:
 
         for root, dirs, files in os.walk(root_dir, onerror=None):
             for filename in files:
+                if FILE_TYPE_NMEA_LOG in filename:
+                    self.FileType = FILE_TYPE_NMEA_LOG
+
                 file_path = os.path.join(root, filename)
 
                 try:
