@@ -49,6 +49,7 @@ class GSV(NmeaSentence):
 
         self.Total = ""
         self.Current = ""
+        self.SignalId = ""
 
     def decode(self, line):
         result = False
@@ -75,6 +76,9 @@ class GSV(NmeaSentence):
             self.SatelliteList.append(Satellite(data))
             index += GSV_SATELLITE_DATA_LENGTH
 
+        if ((len(self.Data) + 1) % GSV_SATELLITE_DATA_LENGTH) == 1:
+            self.SignalId = self.Data[len(self.Data) - 1]
+
         print(self.to_string())
 
         result = True
@@ -92,6 +96,18 @@ class GSV(NmeaSentence):
 
         return result
 
+    def signal_id_to_string(self):
+        result = ""
+
+        if len(self.SignalId) == 0:
+            return result
+
+        result += "SignalId="
+        result += self.SignalId
+        result += self.Separate
+
+        return result
+
     def to_string(self):
         result = ""
 
@@ -102,6 +118,7 @@ class GSV(NmeaSentence):
 
         result += self.current_total_to_string() \
                   + self.view_to_string() \
-                  + self.satellite_list_to_string()
+                  + self.satellite_list_to_string() \
+                  + self.signal_id_to_string()
 
         return result
