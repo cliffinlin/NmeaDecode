@@ -165,10 +165,10 @@ class FoliumMap:
                 self.set_mark_color(navigate_data)
 
                 if self.MarkColor is not None:
-                    folium.Marker(location=location, popup=popup, icon=folium.Icon(color=self.MarkColor)).add_to(
+                    folium.Marker(location=location, tooltip=popup, icon=folium.Icon(color=self.MarkColor)).add_to(
                         self.Map)
                 else:
-                    folium.Marker(location=location, popup=popup).add_to(self.Map)
+                    folium.Marker(location=location, tooltip=popup).add_to(self.Map)
 
         if color is not None:
             folium.PolyLine(locations=self.LocationList, color=color).add_to(self.Map)
