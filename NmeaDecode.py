@@ -37,8 +37,8 @@ DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DATE_TIME_FROM = None
 DATE_TIME_TO = None
 
-# DATE_TIME_FROM = "2020-09-10 08:17:00"
-# DATE_TIME_TO = "2020-09-10 08:27:00"
+# DATE_TIME_FROM = "2020-09-28 10:15:00"
+# DATE_TIME_TO = "2020-09-28 10:15:30"
 #
 # DATE_TIME_FROM = "2020-09-10 08:36:00"
 # DATE_TIME_TO = "2020-09-10 08:46:00"
@@ -87,10 +87,13 @@ class NmeaDecode:
         self.LogFileName = None
         self.LogFileNameSorted = None
 
-        self.FileNameOut = None
-
         self.InputFile = None
+
+        self.NmeaFile = None
+        self.NmeaFileName = None
+
         self.OutputFile = None
+        self.OutputFileName = None
 
         self.NavigateDataList = []
 
@@ -103,7 +106,8 @@ class NmeaDecode:
         self.LogFileName = log_file_name
         self.LogFileNameSorted = log_file_name_sorted
 
-        self.FileNameOut = self.LogFileName + FILE_NAME_EXT_OUT
+        self.NmeaFileName = self.LogFileName + FILE_NAME_EXT_NMEA
+        self.OutputFileName = self.LogFileName + FILE_NAME_EXT_OUT
         self.NmeaStatistic.set_file_name(self.LogFileName)
 
     def decode(self):
@@ -111,7 +115,8 @@ class NmeaDecode:
             print(self.LogFileNameSorted, "file not found!")
             sys.exit()
 
-        self.OutputFile = open(self.FileNameOut, "w")
+        self.NmeaFile = open(self.NmeaFileName, "w")
+        self.OutputFile = open(self.OutputFileName, "w")
 
         with open(self.LogFileNameSorted) as self.InputFile:
             navigate_data = NavigateData()
@@ -405,6 +410,7 @@ class NmeaDecode:
 
         self.nmea_statistic()
 
+        self.NmeaFile.close()
         self.OutputFile.close()
 
     def set_last_sentence(self, sentence):
@@ -412,6 +418,11 @@ class NmeaDecode:
             return
 
         self.LastSentence = sentence
+
+        if self.NmeaFile is None:
+            return
+
+        self.NmeaFile.write(sentence + "\n")
 
     def write_to_output_file(self, text):
         if self.OutputFile is None:

@@ -44,7 +44,7 @@ class LogFile:
 
         self.NormPath = normpath
         self.FileName = self.NormPath + FILE_NAME_EXT
-        self.FileNameSorted = self.NormPath + FILE_NAME_EXT_SORTED
+        self.FileNameSorted = self.FileName + FILE_NAME_EXT_SORTED
 
     def select_file(self):
         file_name = easygui.fileopenbox(msg="Log File", title="Open", default='*.txt')
