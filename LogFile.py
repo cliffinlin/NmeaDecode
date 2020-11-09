@@ -1,10 +1,16 @@
 #!/usr/bin/env python
+import configparser
 import os
 import sys
 from datetime import datetime
 import easygui
 
 DEFAULT_ENCODING = "latin1"
+
+CONFIG_FILE_NAME = "config.ini"
+CONFIG_SECTION_DEFAULT = "DEFAULT"
+CONFIG_OPTION_NORM_PATH = "norm_path"
+CONFIG_OPTION_NORM_PATH_VALUE = '~/Downloads'
 
 FILE_NAME_EXT = ".txt"
 FILE_NAME_EXT_SORTED = ".sorted"
@@ -17,6 +23,7 @@ KEY_WORD_NMEA_DATA_TYPE = ["RMC", "VTG", "GGA", "GSA", "GSV", "GLL"]
 
 class LogFile:
     def __init__(self):
+        self.DefaultNormPath = None
         self.NormPath = None
 
         self.FileName = None
@@ -36,8 +43,35 @@ class LogFile:
         self.search_nmea()
         self.sort_line_list()
 
+    def get_default_norm_path(self):
+        config = configparser.ConfigParser()
+
+        if not os.path.exists(CONFIG_FILE_NAME):
+            self.NormPath = CONFIG_OPTION_NORM_PATH_VALUE
+            return
+
+        config.read(CONFIG_FILE_NAME)
+
+        if not config.has_option(CONFIG_SECTION_DEFAULT, CONFIG_OPTION_NORM_PATH):
+            self.NormPath = CONFIG_OPTION_NORM_PATH_VALUE
+            return
+
+        self.NormPath = config[CONFIG_SECTION_DEFAULT][CONFIG_OPTION_NORM_PATH]
+
+        if not os.path.exists(self.NormPath):
+            self.NormPath = CONFIG_OPTION_NORM_PATH_VALUE
+
+    def set_default_norm_path(self):
+        config = configparser.ConfigParser()
+
+        with open(CONFIG_FILE_NAME, 'w') as configfile:
+            config[CONFIG_SECTION_DEFAULT][CONFIG_OPTION_NORM_PATH] = self.NormPath
+            config.write(configfile)
+
     def select_dir(self):
-        normpath = easygui.diropenbox(msg="Log Dir", title="Select", default='~/Downloads')
+        self.get_default_norm_path()
+
+        normpath = easygui.diropenbox(msg="Log Dir", title="Select", default=self.NormPath)
         if normpath is None:
             print("No dir selected.")
             return
@@ -45,6 +79,8 @@ class LogFile:
         self.NormPath = normpath
         self.FileName = self.NormPath + FILE_NAME_EXT
         self.FileNameSorted = self.FileName + FILE_NAME_EXT_SORTED
+
+        self.set_default_norm_path()
 
     def select_file(self):
         file_name = easygui.fileopenbox(msg="Log File", title="Open", default='*.txt')
