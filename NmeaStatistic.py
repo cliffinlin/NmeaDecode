@@ -23,6 +23,14 @@ class NmeaStatistic:
         self.DistanceFromLastPoint = 0
         self.TotalDistance = 0
 
+        self.FixQuality_0 = 0;
+        self.FixQuality_1 = 0;
+        self.FixQuality_2 = 0;
+        self.FixQuality_3 = 0;
+        self.FixQuality_4 = 0;
+        self.FixQuality_5 = 0;
+        self.FixQuality_6 = 0;
+
         self.MarkColor = None
 
         self.PDOPList = []
@@ -114,18 +122,25 @@ class NmeaStatistic:
         # (55, 168, 218), (187, 249, 112), (255, 255, 0), (113, 130, 36), (113, 174, 38), (255, 255, 255)
         value = int(navigate_data.FixQuality)
         if value == 0:
+            self.FixQuality_0 = self.FixQuality_0 + 1;
             self.MarkColor = (0.5, 0.5, 0.5)  # remark = "Invalid"
         elif value == 1:
+            self.FixQuality_1 = self.FixQuality_1 + 1;
             self.MarkColor = (0.22, 0.67, 0.872)  # remark = "SPS"
         elif value == 2:
+            self.FixQuality_2 = self.FixQuality_2 + 1;
             self.MarkColor = (0.733, 0.976, 0.439)  # remark = "Differential"
         elif value == 3:
+            self.FixQuality_3 = self.FixQuality_3 + 1;
             self.MarkColor = (1.0, 1.0, 0)  # remark = "PPS"
         elif value == 4:
+            self.FixQuality_4 = self.FixQuality_4 + 1;
             self.MarkColor = (0.443, 0.509, 0.141)  # remark = "RTK Fixed"
         elif value == 5:
+            self.FixQuality_5 = self.FixQuality_5 + 1;
             self.MarkColor = (0.443, 0.682, 0.149)  # remark = "RTK Float"
         elif value == 6:
+            self.FixQuality_6 = self.FixQuality_6 + 1;
             self.MarkColor = (1.0, 1.0, 1.0)  # remark = "Estimated"
 
         self.ColorList.append(self.MarkColor)
@@ -206,6 +221,7 @@ class NmeaStatistic:
         print(self.cep_to_string())
         print(self.rms_to_string())
         print(self.test_point_count_to_string())
+        print(self.fix_quality_count_to_string())
 
         if self.OutputFile is not None:
             self.OutputFile.write(self.to_string())
@@ -253,6 +269,32 @@ class NmeaStatistic:
 
         return result
 
+    def fix_quality_count_to_string(self):
+        result = ""
+
+        if self.FixQuality_0 > 0:
+            result += "Invalid count = " + str(self.FixQuality_0) + SEPARATOR_N
+
+        if self.FixQuality_1 > 0:
+            result += "SPS count = " + str(self.FixQuality_1) + SEPARATOR_N
+
+        if self.FixQuality_2 > 0:
+            result += "Differential count = " + str(self.FixQuality_2) + SEPARATOR_N
+
+        if self.FixQuality_3 > 0:
+            result += "PPS count = " + str(self.FixQuality_3) + SEPARATOR_N
+
+        if self.FixQuality_4 > 0:
+            result += "RTK Fixed count = " + str(self.FixQuality_4) + SEPARATOR_N
+
+        if self.FixQuality_5 > 0:
+            result += "RTK Float count = " + str(self.FixQuality_5) + SEPARATOR_N
+
+        if self.FixQuality_6 > 0:
+            result += "Estimated count = " + str(self.FixQuality_6) + SEPARATOR_N
+
+        return result
+
     def rms_to_string(self):
         result = ""
 
@@ -283,6 +325,7 @@ class NmeaStatistic:
                   + self.YStatistic.to_string() + SEPARATOR_N \
                   + self.cep_to_string() + SEPARATOR_N \
                   + self.rms_to_string() + SEPARATOR_N \
-                  + self.test_point_count_to_string() + SEPARATOR_N
+                  + self.test_point_count_to_string() + SEPARATOR_N\
+                  + self.fix_quality_count_to_string()
 
         return result
